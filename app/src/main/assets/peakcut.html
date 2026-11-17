@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PeakCut — Web &amp; Android Studio</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #13161d;
+      --surface-2: #191d26;
+      --border: #252a36;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-anton { font-family: 'Anton', Impact, sans-serif; letter-spacing: 0.03em; }
+    .font-archivo { font-family: 'Archivo Black', sans-serif; }
+    .font-poppins { font-family: 'Poppins', sans-serif; }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .panel-2 {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .btn:hover { background: #222734; border-color: #353c4d; }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0c0e12;
+    }
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-danger {
+      background: #2a1416;
+      border-color: #5c2126;
+      color: #fca5a5;
+    }
+    .btn-danger:hover { background: #3b191c; }
+    .input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .input:focus { border-color: var(--accent); }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      transition: background-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+    .nav-btn:hover { background: var(--surface-2); color: var(--text); }
+    .nav-btn.active {
+      background: var(--surface-2);
+      border-color: var(--border);
+      color: var(--text);
+      font-weight: 600;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--muted);
+    }
+    .tag-green { background: #0f291a; border-color: #1c4b30; color: #86efac; }
+    .tag-orange { background: #2d180a; border-color: #5c3114; color: #fdba74; }
+    .tag-blue { background: #10203a; border-color: #1e3a6b; color: #93c5fd; }
+    .tag-red { background: #2c1215; border-color: #592026; color: #fca5a5; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .phone-frame {
+      aspect-ratio: 9 / 16;
+      max-height: 460px;
+      width: auto;
+      margin: 0 auto;
+      background: #050608;
+      border: 2px solid #2b3140;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+    }
+    /* Android Device Frame Mode */
+    body.android-mode {
+      background: #07080b;
+    }
+    body.android-mode #app {
+      max-width: 412px;
+      margin: 12px auto;
+      min-height: calc(100vh - 24px);
+      border: 3px solid #2d3446;
+      border-radius: 32px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    body.android-mode #androidStatusBar {
+      display: flex !important;
+    }
+    body.android-mode #androidBottomNav {
+      display: grid !important;
+    }
+    body.android-mode #mainNav {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="min-h-screen flex flex-col">
+    <!-- Android Status Bar (Visible in Android Mode) -->
+    <div id="androidStatusBar" class="hidden items-center justify-between px-5 py-1.5 bg-[#0c0e12] text-[11px] text-[#94a3b8] border-b border-[#1c202b]">
+      <span class="font-semibold text-white">20:54</span>
+      <span class="text-[10px] font-mono text-[#f97316]">Android 14 · Material 3</span>
+      <span>5G · 94%</span>
+    </div>
+
+    <!-- Top Header -->
+    <header class="border-b border-[#252a36] bg-[#13161d] sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-md bg-[#f97316] flex items-center justify-center text-[#0c0e12] font-bold text-sm">PC</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-base tracking-tight">PeakCut</span>
+              <button id="updateBadgeBtn" class="tag tag-orange cursor-pointer hover:bg-[#3f210d]" title="Check update">Update available</button>
+            </div>
+            <p class="text-[11px] text-[#94a3b8] leading-none mt-0.5">Self-hosted AI video &amp; live stream clipper</p>
+          </div>
+        </div>
+
+        <nav id="mainNav" class="flex items-center gap-1 overflow-x-auto py-1">
+          <button class="nav-btn active" data-view="dashboard">Clips &amp; Studio</button>
+          <button class="nav-btn" data-view="live">Live Clipping</button>
+          <button class="nav-btn" data-view="workspaces">Workspaces</button>
+          <button class="nav-btn" data-view="posting">Post Queue <span id="navQueueCount" class="tag ml-1">0</span></button>
+          <button class="nav-btn" data-view="usage">AI Usage</button>
+          <button class="nav-btn" data-view="settings">Settings</button>
+          <button id="adminNavBtn" class="nav-btn hidden" data-view="admin">Admin</button>
+        </nav>
+
+        <div class="flex items-center gap-2">
+          <button id="toggleAndroidModeBtn" class="btn text-xs py-1.5 px-2.5 border-[#f97316] text-[#fdba74]" title="Switch between Desktop Web & Android M3 Phone UI">Android App View</button>
+          <div id="authStatusPill" class="tag cursor-pointer" title="Account mode">Local Owner</div>
+          <button id="signInTriggerBtn" class="btn text-xs py-1.5 px-2.5 hidden">Sign in</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-5">
+      <!-- VIEW: DASHBOARD -->
+      <section id="view-dashboard" class="space-y-5">
+        <!-- New Clip Input + Quick Settings -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="panel p-4 lg:col-span-2 space-y-3">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <h1 class="text-sm font-semibold">Clip a Video or Stream VOD</h1>
+              <span id="aiModeBadge" class="tag tag-green">AI: Gemini (gemini-2.5-flash)</span>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="videoUrlInput" type="url" class="input flex-1" placeholder="Paste YouTube, Twitch, or Kick link (e.g. https://youtube.com/watch?v=...)" />
+              <button id="addUrlJobBtn" class="btn btn-primary whitespace-nowrap">Find &amp; Clip</button>
+            </div>
+
+            <div id="dropZone" class="border border-dashed border-[#353c4d] rounded-md p-4 text-center bg-[#0c0e12] cursor-pointer hover:border-[#f97316] transition-colors">
+              <input id="fileUploadInput" type="file" accept="video/*" multiple class="hidden" />
+              <p class="text-xs text-[#cbd5e1] font-medium">Drop up to 5 video files here, or <span class="text-[#f97316] underline">browse files</span></p>
+              <p class="text-[11px] text-[#94a3b8] mt-1">Uploaded videos play directly in the 9:16 previewer. Chunked upload &amp; local Parakeet speech-to-text pipeline.</p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+              <div>
+                <label class="block text-[11px] text-[#94a3b8] mb-1">Workspace</label>
+                <select id="jobWorkspaceSelect" class="input text-xs py-1.5"></select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-[#94a3b8] mb-1">Caption Style</label>
+                <select id="jobCaptionStyleSelect" class="input text-xs py-1.5">
+                  <option value="anton">Style 1: Anton Bold Pop</option>
+                  <option value="archivo">Style 2: Archivo Box</option>
+                  <option value="poppins">Style 3: Poppins Clean</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-[#94a3b8] mb-1">Clip Length</label>
+                <select id="jobDurationSelect" class="input text-xs py-1.5">
+                  <option value="30">15–35 sec (Shorts)</option>
+                  <option value="45" selected>30–60 sec (Viral)</option>
+                  <option value="75">60–90 sec (Story)</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <label class="flex items-center gap-2 text-xs cursor-pointer panel-2 px-3 py-1.5 w-full">
+                  <input id="jobHookToggle" type="checkbox" checked class="accent-[#f97316]" />
+                  <span>Add Hook Overlay</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fair Queue & System Health -->
+          <div class="panel p-4 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-center justify-between">
+                <h2 class="text-sm font-semibold">Processing Queue</h2>
+                <span id="queueStateTag" class="tag tag-green">Idle / Ready</span>
+              </div>
+              <div id="activeJobsList" class="mt-3 space-y-2 max-h-40 overflow-y-auto"></div>
+            </div>
+            <div class="border-t border-[#252a36] pt-3 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-[#94a3b8]">CPU / RAM / Disk</span>
+                <span id="sysMiniReadout" class="font-mono text-[11px]">24% · 41% · 38%</span>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span id="diskWarningText" class="text-[11px] text-[#94a3b8]">Storage healthy (124 GB free)</span>
+                <button id="openDataFolderBtn" class="btn text-[11px] py-1 px-2">Data Folder</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Finished Clips + 9:16 Interactive Studio Previewer -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <!-- Clips List -->
+          <div class="panel p-4 lg:col-span-7 space-y-3">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <div class="flex items-center gap-2">
+                <h2 class="text-sm font-semibold">Generated Clips</h2>
+                <span id="clipsCountBadge" class="tag">0 clips</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <select id="clipFilterWorkspace" class="input text-xs py-1 px-2 w-auto">
+                  <option value="all">All Workspaces</option>
+                </select>
+                <button id="simulateDemoJobBtn" class="btn text-xs py-1 px-2.5">+ Demo Clip</button>
+              </div>
+            </div>
+            <div id="clipsGrid" class="space-y-2.5 max-h-[560px] overflow-y-auto pr-1"></div>
+          </div>
+
+          <!-- 9:16 Vertical Preview & Caption Editor -->
+          <div class="panel p-4 lg:col-span-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-semibold">9:16 Clip Preview &amp; Editor</h2>
+              <div class="flex items-center gap-1.5">
+                <button id="prevStyleCycleBtn" class="btn text-xs py-1 px-2">Switch Style</button>
+                <button id="downloadClipBtn" class="btn btn-primary text-xs py-1 px-2.5">Export</button>
+              </div>
+            </div>
+
+            <div id="previewContainer" class="phone-frame flex flex-col justify-between p-3 select-none">
+              <video id="previewVideo" class="hidden absolute inset-0 w-full h-full object-cover" playsinline muted loop></video>
+              <canvas id="previewCanvas" class="absolute inset-0 w-full h-full object-cover"></canvas>
+
+              <!-- Top Hook Overlay -->
+              <div id="previewHookBox" class="relative z-10 mt-4 mx-auto max-w-[90%] text-center px-3 py-1.5 rounded bg-black/75 border border-white/20">
+                <p id="previewHookText" class="text-xs font-bold text-white leading-tight"></p>
+              </div>
+
+              <!-- Word-by-word Caption Overlay -->
+              <div class="relative z-10 mb-8 px-2 text-center">
+                <div id="previewCaptionBox" class="inline-block px-3 py-1.5 rounded transition-all"></div>
+              </div>
+            </div>
+
+            <!-- Playback & Trim Controls -->
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <button id="playPausePreviewBtn" class="btn text-xs py-1 px-3">Play</button>
+                <input id="previewScrubber" type="range" min="0" max="100" value="0" class="flex-1 accent-[#f97316]" />
+                <span id="previewTimecode" class="text-[11px] font-mono text-[#94a3b8]">00:00 / 00:38</span>
+              </div>
+
+              <div class="grid grid-cols-1 gap-2 pt-1">
+                <div>
+                  <label class="block text-[11px] text-[#94a3b8] mb-1">Clip Title (AI-generated, editable)</label>
+                  <input id="editClipTitle" type="text" class="input text-xs py-1.5" />
+                </div>
+                <div>
+                  <label class="block text-[11px] text-[#94a3b8] mb-1">Hook Overlay Text</label>
+                  <input id="editClipHook" type="text" class="input text-xs py-1.5" />
+                </div>
+                <div>
+                  <label class="block text-[11px] text-[#94a3b8] mb-1">Caption Transcript (word-by-word fix)</label>
+                  <textarea id="editClipTranscript" rows="2" class="input text-xs py-1.5"></textarea>
+                </div>
+                <div class="flex items-center justify-between gap-2 pt-1">
+                  <button id="saveClipEditsBtn" class="btn text-xs py-1.5 flex-1">Save Changes</button>
+                  <button id="queueClipPostBtn" class="btn btn-primary text-xs py-1.5 flex-1">Queue to Post</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: LIVE CLIPPING -->
+      <section id="view-live" class="hidden space-y-4">
+        <div class="panel p-4 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h1 class="text-sm font-semibold">Live Stream Rolling Buffer &amp; Auto-Clipping</h1>
+              <p class="text-xs text-[#94a3b8]">Records a Twitch, Kick, or YouTube live stream and clips highlights in real time using loudness, chat activity, and live transcript.</p>
+            </div>
+            <span id="liveSlotBadge" class="tag tag-green">0 / 2 Active Streams</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+            <input id="liveUrlInput" type="url" class="input sm:col-span-2" placeholder="Stream URL (e.g. https://twitch.tv/creator or https://kick.com/creator)" />
+            <select id="liveWorkspaceSelect" class="input"></select>
+            <button id="startLiveBtn" class="btn btn-primary">Start Recording</button>
+          </div>
+        </div>
+
+        <div id="liveSessionsContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+      </section>
+
+      <!-- VIEW: WORKSPACES -->
+      <section id="view-workspaces" class="hidden space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h1 class="text-sm font-semibold">Creator Workspaces</h1>
+            <p class="text-xs text-[#94a3b8]">Channels, clip settings, posting rules, and activity log per creator.</p>
+          </div>
+          <button id="newWorkspaceBtn" class="btn btn-primary">+ New Workspace</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div id="workspacesList" class="lg:col-span-4 space-y-2"></div>
+          <div id="workspaceDetail" class="panel p-4 lg:col-span-8 space-y-4"></div>
+        </div>
+      </section>
+
+      <!-- VIEW: POST QUEUE -->
+      <section id="view-posting" class="hidden space-y-4">
+        <div class="panel p-4 flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 class="text-sm font-semibold">Social Posting Queue &amp; Rules</h1>
+            <p class="text-xs text-[#94a3b8]">Clips respect per-workspace spacing and daily caps across YouTube, Instagram, and TikTok.</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap" id="connectedAppsSummary"></div>
+        </div>
+        <div id="postQueueList" class="space-y-2.5"></div>
+      </section>
+
+      <!-- VIEW: AI USAGE -->
+      <section id="view-usage" class="hidden space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div class="panel p-3.5">
+            <p class="text-[11px] text-[#94a3b8]">Total AI Requests</p>
+            <p id="usageTotalReqs" class="text-xl font-bold mt-1">0</p>
+          </div>
+          <div class="panel p-3.5">
+            <p class="text-[11px] text-[#94a3b8]">Input Tokens</p>
+            <p id="usageInputTokens" class="text-xl font-bold mt-1">0</p>
+          </div>
+          <div class="panel p-3.5">
+            <p class="text-[11px] text-[#94a3b8]">Output Tokens</p>
+            <p id="usageOutputTokens" class="text-xl font-bold mt-1">0</p>
+          </div>
+          <div class="panel p-3.5">
+            <p class="text-[11px] text-[#94a3b8]">Speech-to-Text (Local)</p>
+            <p class="text-xl font-bold mt-1 text-[#86efac]">$0.00</p>
+          </div>
+        </div>
+
+        <div class="panel p-4">
+          <h2 class="text-sm font-semibold mb-3">Token Usage by Video / Session</h2>
+          <div class="relative h-64">
+            <canvas id="usageChart"></canvas>
+          </div>
+        </div>
+
+        <div class="panel p-4 overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="text-[#94a3b8] border-b border-[#252a36]">
+              <tr>
+                <th class="py-2 pr-3">Video / Session</th>
+                <th class="py-2 pr-3">Provider &amp; Model</th>
+                <th class="py-2 pr-3">Requests</th>
+                <th class="py-2 pr-3">Tokens In</th>
+                <th class="py-2 pr-3">Tokens Out</th>
+                <th class="py-2">Clips Found</th>
+              </tr>
+            </thead>
+            <tbody id="usageTableBody" class="divide-y divide-[#252a36]"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- VIEW: SETTINGS -->
+      <section id="view-settings" class="hidden space-y-4">
+        <div class="flex items-center gap-2 border-b border-[#252a36] pb-2">
+          <button class="nav-btn active settings-tab-btn" data-stab="ai">AI Provider</button>
+          <button class="nav-btn settings-tab-btn" data-stab="apps">Connected Apps</button>
+          <button class="nav-btn settings-tab-btn" data-stab="account">Accounts &amp; Server</button>
+        </div>
+
+        <!-- Settings: AI -->
+        <div id="stab-ai" class="panel p-4 space-y-4 max-w-3xl">
+          <div>
+            <h2 class="text-sm font-semibold">Choose Your AI</h2>
+            <p class="text-xs text-[#94a3b8] mt-0.5">PeakCut uses your own AI key for picking moments, writing hooks, and fixing captions. Leave key empty to use loudness-only clipping.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-[#94a3b8] mb-1">AI Provider</label>
+              <select id="aiProviderSelect" class="input">
+                <option value="gemini">Google Gemini</option>
+                <option value="openai">OpenAI</option>
+                <option value="xai">Grok (xAI)</option>
+                <option value="groq">Groq</option>
+                <option value="openrouter">OpenRouter</option>
+                <option value="anthropic">Claude (Anthropic)</option>
+                <option value="ollama">Ollama (Local, no key)</option>
+                <option value="custom">Custom (OpenAI-compatible)</option>
+                <option value="none">No AI Key (Loudness-only)</option>
+              </select>
+            </div>
+            <div id="aiBaseUrlWrap" class="hidden">
+              <label class="block text-xs text-[#94a3b8] mb-1">Base URL (PEAKCUT_AI_BASE_URL)</label>
+              <input id="aiBaseUrlInput" type="url" class="input" placeholder="http://127.0.0.1:11434/v1" />
+            </div>
+            <div>
+              <label class="block text-xs text-[#94a3b8] mb-1">API Key (stored locally, masked)</label>
+              <input id="aiKeyInput" type="password" class="input" placeholder="Paste your API key..." />
+            </div>
+            <div class="sm:col-span-2">
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-xs text-[#94a3b8]">Models (comma-separated fallback order)</label>
+                <button id="findModelsBtn" class="btn text-[11px] py-1 px-2">Find models</button>
+              </div>
+              <input id="aiModelsInput" type="text" class="input" placeholder="gemini-2.5-flash, gemini-2.5-pro" />
+              <div id="foundModelsChips" class="flex flex-wrap gap-1.5 mt-2"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="saveTestAiBtn" class="btn btn-primary">Save and test</button>
+            <span id="aiTestStatus" class="text-xs text-[#94a3b8]"></span>
+          </div>
+        </div>
+
+        <!-- Settings: Connected Apps -->
+        <div id="stab-apps" class="hidden space-y-3 max-w-3xl">
+          <div class="panel p-4 space-y-3" id="connectedAppsCards"></div>
+        </div>
+
+        <!-- Settings: Accounts & Server -->
+        <div id="stab-account" class="hidden panel p-4 space-y-4 max-w-3xl">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-semibold">Accounts Mode (PEAKCUT_ACCOUNTS)</h2>
+              <p class="text-xs text-[#94a3b8]">Off on your own computer (direct dashboard). Turn on for shared servers with email/Google sign-in and /admin.</p>
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input id="accountsModeToggle" type="checkbox" class="accent-[#f97316]" />
+              <span class="text-xs font-semibold">Enable Accounts</span>
+            </label>
+          </div>
+          <div class="border-t border-[#252a36] pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="panel-2 p-3">
+              <p class="font-semibold">Local Speech-to-Text</p>
+              <p class="text-[#94a3b8] mt-1">Parakeet ONNX model (480 MB) · Runs locally so audio never leaves your machine.</p>
+            </div>
+            <div class="panel-2 p-3">
+              <p class="font-semibold">Update Check</p>
+              <p class="text-[#94a3b8] mt-1">PEAKCUT_UPDATE_CHECK=1 · Checks GitHub every few hours without touching .env or clips.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: ADMIN -->
+      <section id="view-admin" class="hidden space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="panel p-3.5">
+            <p class="text-[11px] text-[#94a3b8]">CPU Load</p>
+            <p id="adminCpu" class="text-xl font-bold mt-1">24%</p>
+          </div>
+          <div class="panel p-3.5">
+            <p class="text-[11px] text-[#94a3b8]">Memory Usage</p>
+            <p id="adminRam" class="text-xl font-bold mt-1">41%</p>
+          </div>
+          <div class="panel p-3.5">
+            <p class="text-[11px] text-[#94a3b8]">Disk Usage (./data)</p>
+            <p id="adminDisk" class="text-xl font-bold mt-1">38%</p>
+          </div>
+        </div>
+
+        <div class="panel p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold">Users &amp; Roles (studio.admin)</h2>
+            <span class="tag">Only CLI or Admin can grant/revoke</span>
+          </div>
+          <div id="adminUsersList" class="space-y-2"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Android Material 3 Bottom Navigation Bar (Visible in Android Mode) -->
+    <nav id="androidBottomNav" class="hidden grid-cols-5 border-t border-[#252a36] bg-[#13161d] py-1.5 px-1 sticky bottom-0 z-30 text-center">
+      <button class="android-nav-item py-1 text-[11px] font-semibold text-[#f97316]" data-view="dashboard">Studio</button>
+      <button class="android-nav-item py-1 text-[11px] text-[#94a3b8]" data-view="live">Live</button>
+      <button class="android-nav-item py-1 text-[11px] text-[#94a3b8]" data-view="workspaces">Creators</button>
+      <button class="android-nav-item py-1 text-[11px] text-[#94a3b8]" data-view="posting">Post</button>
+      <button class="android-nav-item py-1 text-[11px] text-[#94a3b8]" data-view="settings">Settings</button>
+    </nav>
+  </div>
+
+  <!-- In-Page Modal -->
+  <div id="modalBackdrop" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div class="panel max-w-md w-full p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="modalTitle" class="text-sm font-semibold"></h3>
+        <button id="modalCloseBtn" class="btn text-xs py-1 px-2">Close</button>
+      </div>
+      <div id="modalBody" class="text-xs text-[#cbd5e1] space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-4 right-4 z-50 panel px-3.5 py-2.5 text-xs font-medium border-[#f97316]"></div>
+
+  <script>
+    const PROVIDER_MODELS = {
+      gemini: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash'],
+      openai: ['gpt-4.1-mini', 'gpt-4o-mini', 'gpt-4.1'],
+      xai: ['grok-3-mini', 'grok-3'],
+      groq: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'],
+      openrouter: ['google/gemini-2.5-flash', 'anthropic/claude-3.5-sonnet'],
+      anthropic: ['claude-3-5-haiku-latest', 'claude-3-7-sonnet-latest'],
+      ollama: ['qwen2.5:14b', 'llama3.2:latest'],
+      custom: ['custom-model-v1'],
+      none: []
+    };
+
+    const DEFAULT_STATE = {
+      activeView: 'dashboard',
+      settingsTab: 'ai',
+      androidMode: false,
+      accountsEnabled: false,
+      signedInUser: { email: 'owner@localhost', role: 'admin' },
+      ai: {
+        provider: 'gemini',
+        models: 'gemini-2.5-flash',
+        key: '',
+        baseUrl: '',
+        tested: true
+      },
+      workspaces: [
+        {
+          id: 'ws-1',
+          name: 'Tech & AI Podcast',
+          channel: 'https://youtube.com/@techpodcast',
+          platform: 'YouTube',
+          captionStyle: 'anton',
+          hookEnabled: true,
+          targetDuration: 45,
+          autoPost: true,
+          spacingHours: 4,
+          dailyCap: 3,
+          logs: [
+            'Rendered 3 clips from "Why Local AI Models Won"',
+            'Auto-posted Clip #1 to YouTube Shorts'
+          ]
+        },
+        {
+          id: 'ws-2',
+          name: 'Nightly Gaming Stream',
+          platform: 'Twitch',
+          channel: 'https://twitch.tv/nightgamer',
+          captionStyle: 'archivo',
+          hookEnabled: true,
+          targetDuration: 30,
+          autoPost: false,
+          spacingHours: 2,
+          dailyCap: 5,
+          logs: [
+            'Live session recorded 42m rolling buffer',
+            'Clipped clutch moment via loudness + chat spike'
+          ]
+        }
+      ],
+      selectedWorkspaceId: 'ws-1',
+      jobs: [],
+      clips: [
+        {
+          id: 'clip-101',
+          workspaceId: 'ws-1',
+          title: 'Why Self-Hosted AI Beats Subscriptions',
+          hook: 'STOP paying $30/mo for basic video clips',
+          sourceTitle: 'Building Open Source Tools in 2026',
+          duration: 34,
+          style: 'anton',
+          score: 94,
+          videoUrl: null,
+          transcript: 'You do not need a cloud subscription just to cut a podcast into vertical shorts. Run the speech model locally and bring your own API key.'
+        },
+        {
+          id: 'clip-102',
+          workspaceId: 'ws-2',
+          title: '1v4 Clutch at Final Circle',
+          hook: 'Chat went completely wild on this play',
+          sourceTitle: 'Twitch VOD - Ranked Marathon',
+          duration: 26,
+          style: 'archivo',
+          score: 91,
+          videoUrl: null,
+          transcript: 'Wait watch the smoke on the left side. No way he hits that flick shot with two bullets left!'
+        }
+      ],
+      selectedClipId: 'clip-101',
+      liveSessions: [
+        {
+          id: 'live-1',
+          url: 'https://twitch.tv/nightgamer',
+          workspaceId: 'ws-2',
+          status: 'Recording',
+          uptimeSec: 1842,
+          loudnessDb: -14,
+          chatPerMin: 48,
+          clipsCaptured: 2,
+          transcriptTail: 'Okay chat, if we win this round I am giving away...'
+        }
+      ],
+      connectedApps: {
+        youtube: { connected: true, account: '@TechPodcastShorts', note: 'Private until Google API audit', redirect: 'https://your-domain/oauth/youtube/callback' },
+        instagram: { connected: false, account: '', note: 'Creator or Business account via Meta', redirect: 'https://your-domain/oauth/instagram/callback' },
+        tiktok: { connected: false, account: '', note: 'Direct Post API (private until audited)', redirect: 'https://your-domain/oauth/tiktok/callback' }
+      },
+      postQueue: [
+        {
+          id: 'post-1',
+          clipId: 'clip-101',
+          title: 'Why Self-Hosted AI Beats Subscriptions #shorts',
+          platform: 'YouTube',
+          workspaceId: 'ws-1',
+          status: 'Scheduled (in 4h)',
+          scheduledFor: 'Today, 23:00'
+        }
+      ],
+      usageRecords: [
+        { source: 'Building Open Source Tools in 2026', provider: 'gemini / gemini-2.5-flash', requests: 4, tokensIn: 18420, tokensOut: 1420, clips: 4 },
+        { source: 'Twitch VOD - Ranked Marathon', provider: 'gemini / gemini-2.5-flash', requests: 3, tokensIn: 12100, tokensOut: 980, clips: 3 },
+        { source: 'Live Stream Buffer #live-1', provider: 'gemini / gemini-2.5-flash', requests: 6, tokensIn: 9400, tokensOut: 710, clips: 2 }
+      ],
+      adminUsers: [
+        { email: 'owner@localhost', role: 'admin', jobsCount: 14 },
+        { email: 'editor@studio.local', role: 'user', jobsCount: 5 }
+      ]
+    };
+
+    let state = loadState();
+    let previewPlaying = false;
+    let previewTime = 0;
+    let previewTimer = null;
+    let usageChartInstance = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem('peakcut_app_state_v1');
+        if (raw) return { ...DEFAULT_STATE, ...JSON.parse(raw) };
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
+    function saveState() {
+      try {
+        const clone = JSON.parse(JSON.stringify(state));
+        clone.clips = clone.clips.map(c => ({ ...c, videoUrl: null }));
+        localStorage.setItem('peakcut_app_state_v1', JSON.stringify(clone));
+      } catch (e) {}
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(t._tid);
+      t._tid = setTimeout(() => t.classList.add('hidden'), 3200);
+    }
+
+    function openModal(title, html) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').innerHTML = html;
+      document.getElementById('modalBackdrop').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modalBackdrop').classList.add('hidden');
+    }
+
+    function switchView(viewName) {
+      state.activeView = viewName;
+      document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+      const target = document.getElementById('view-' + viewName);
+      if (target) target.classList.remove('hidden');
+      document.querySelectorAll('#mainNav .nav-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === viewName);
+      });
+      document.querySelectorAll('.android-nav-item').forEach(b => {
+        const isAct = b.dataset.view === viewName;
+        b.classList.toggle('text-[#f97316]', isAct);
+        b.classList.toggle('font-semibold', isAct);
+        b.classList.toggle('text-[#94a3b8]', !isAct);
+      });
+      if (viewName === 'usage') renderUsageChart();
+      saveState();
+    }
+
+    function renderAll() {
+      document.body.classList.toggle('android-mode', !!state.androidMode);
+      document.getElementById('toggleAndroidModeBtn').textContent = state.androidMode ? 'Desktop Web View' : 'Android App View';
+      document.getElementById('adminNavBtn').classList.toggle('hidden', !state.accountsEnabled);
+      document.getElementById('signInTriggerBtn').classList.toggle('hidden', !state.accountsEnabled);
+      document.getElementById('authStatusPill').textContent = state.accountsEnabled
+        ? `${state.signedInUser.email} (${state.signedInUser.role})`
+        : 'Local Owner (No Sign-in)';
+      document.getElementById('navQueueCount').textContent = state.postQueue.length;
+
+      const aiBadge = document.getElementById('aiModeBadge');
+      if (state.ai.provider === 'none' || (!state.ai.key && state.ai.provider !== 'ollama')) {
+        aiBadge.textContent = state.ai.provider === 'none' ? 'Mode: Loudness-only (No AI key)' : `AI: ${state.ai.provider} (Key not set — Loudness fallback)`;
+        aiBadge.className = 'tag tag-orange';
+      } else {
+        aiBadge.textContent = `AI: ${state.ai.provider} (${state.ai.models.split(',')[0].trim()})`;
+        aiBadge.className = 'tag tag-green';
+      }
+
+      const wsOptions = state.workspaces.map(w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`).join('');
+      document.getElementById('jobWorkspaceSelect').innerHTML = wsOptions;
+      document.getElementById('liveWorkspaceSelect').innerHTML = wsOptions;
+      document.getElementById('clipFilterWorkspace').innerHTML = `<option value="all">All Workspaces</option>` + wsOptions;
+
+      renderJobs();
+      renderClips();
+      renderPreview();
+      renderLiveSessions();
+      renderWorkspaces();
+      renderPostQueue();
+      renderUsage();
+      renderSettings();
+      renderAdmin();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    function renderJobs() {
+      const container = document.getElementById('activeJobsList');
+      const tag = document.getElementById('queueStateTag');
+      if (state.jobs.length === 0) {
+        tag.textContent = 'Idle / Ready';
+        tag.className = 'tag tag-green';
+        container.innerHTML = `<p class="text-xs text-[#94a3b8]">No active jobs. Paste a link or drop files to start clipping.</p>`;
+        return;
+      }
+      tag.textContent = `${state.jobs.length} Active`;
+      tag.className = 'tag tag-orange';
+      container.innerHTML = state.jobs.map(j => `
+        <div class="panel-2 p-2.5 space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-medium truncate max-w-[180px]">${escapeHtml(j.title)}</span>
+            <span class="tag tag-blue">${escapeHtml(j.stage)}</span>
+          </div>
+          <div class="w-full h-1.5 bg-[#0c0e12] rounded overflow-hidden">
+            <div class="h-full bg-[#f97316] transition-all" style="width:${j.progress}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function startClipJob(title, videoUrl = null) {
+      const wsId = document.getElementById('jobWorkspaceSelect').value || state.workspaces[0].id;
+      const style = document.getElementById('jobCaptionStyleSelect').value;
+      const duration = Number(document.getElementById('jobDurationSelect').value) || 45;
+      const hookEnabled = document.getElementById('jobHookToggle').checked;
+      const jobId = 'job-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+
+      const stages = ['Downloading / Probing', 'Transcribing (Parakeet)', 'AI Picking Moments', 'Rendering 9:16 + Captions'];
+      const job = { id: jobId, title, stage: stages[0], progress: 15, wsId, style, duration, hookEnabled, videoUrl };
+      state.jobs.unshift(job);
+      renderJobs();
+
+      let step = 0;
+      const interval = setInterval(() => {
+        step++;
+        if (step < stages.length) {
+          job.stage = stages[step];
+          job.progress = 20 + step * 24;
+          renderJobs();
+        } else {
+          clearInterval(interval);
+          state.jobs = state.jobs.filter(x => x.id !== jobId);
+          const newClip = {
+            id: 'clip-' + Date.now(),
+            workspaceId: wsId,
+            title: `${title.slice(0, 34)} — Highlight`,
+            hook: hookEnabled ? 'Wait until you hear this part...' : '',
+            sourceTitle: title,
+            duration: Math.min(duration, 42),
+            style,
+            score: 88 + Math.floor(Math.random() * 10),
+            videoUrl,
+            transcript: 'This is where everything changed in the workflow. Once we switched to local speech transcription and automated 9:16 framing, output tripled.'
+          };
+          state.clips.unshift(newClip);
+          state.selectedClipId = newClip.id;
+          state.usageRecords.unshift({
+            source: title.slice(0, 38),
+            provider: state.ai.provider === 'none' ? 'Loudness-only' : `${state.ai.provider} / ${state.ai.models.split(',')[0].trim()}`,
+            requests: state.ai.provider === 'none' ? 0 : 4,
+            tokensIn: state.ai.provider === 'none' ? 0 : 14200,
+            tokensOut: state.ai.provider === 'none' ? 0 : 1150,
+            clips: 1
+          });
+          const ws = state.workspaces.find(w => w.id === wsId);
+          if (ws) ws.logs.unshift(`Clipped "${newClip.title}" (${newClip.style})`);
+          saveState();
+          renderAll();
+          showToast(`Clip ready: ${newClip.title}`);
+        }
+      }, 650);
+    }
+
+    function renderClips() {
+      const filterWs = document.getElementById('clipFilterWorkspace').value;
+      const filtered = filterWs === 'all' ? state.clips : state.clips.filter(c => c.workspaceId === filterWs);
+      document.getElementById('clipsCountBadge').textContent = `${filtered.length} clips`;
+      const grid = document.getElementById('clipsGrid');
+      if (filtered.length === 0) {
+        grid.innerHTML = `<p class="text-xs text-[#94a3b8] py-4 text-center">No clips in this workspace yet.</p>`;
+        return;
+      }
+      grid.innerHTML = filtered.map(c => {
+        const ws = state.workspaces.find(w => w.id === c.workspaceId);
+        const active = c.id === state.selectedClipId;
+        return `
+          <div class="panel-2 p-3 flex items-center justify-between gap-3 cursor-pointer ${active ? 'border-[#f97316]' : ''}" data-select-clip="${c.id}">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <p class="text-xs font-semibold truncate">${escapeHtml(c.title)}</p>
+                <span class="tag tag-green">Score ${c.score}</span>
+              </div>
+              <p class="text-[11px] text-[#94a3b8] truncate mt-0.5">${escapeHtml(c.sourceTitle)} · ${c.duration}s · ${ws ? escapeHtml(ws.name) : ''}</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="tag">${escapeHtml(c.style)}</span>
+              <button class="btn text-[11px] py-1 px-2" data-delete-clip="${c.id}">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('[data-select-clip]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('[data-delete-clip]')) return;
+          state.selectedClipId = el.dataset.selectClip;
+          previewTime = 0;
+          renderClips();
+          renderPreview();
+        });
+      });
+      grid.querySelectorAll('[data-delete-clip]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.deleteClip;
+          state.clips = state.clips.filter(c => c.id !== id);
+          if (state.selectedClipId === id) state.selectedClipId = state.clips[0]?.id || null;
+          saveState();
+          renderAll();
+          showToast('Clip removed');
+        });
+      });
+    }
+
+    function renderPreview() {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      const vid = document.getElementById('previewVideo');
+      const cvs = document.getElementById('previewCanvas');
+      const hookBox = document.getElementById('previewHookBox');
+      const hookText = document.getElementById('previewHookText');
+
+      if (!clip) {
+        document.getElementById('editClipTitle').value = '';
+        document.getElementById('editClipHook').value = '';
+        document.getElementById('editClipTranscript').value = '';
+        hookBox.classList.add('hidden');
+        document.getElementById('previewCaptionBox').innerHTML = '<span class="text-xs text-[#94a3b8]">Select a clip</span>';
+        return;
+      }
+
+      document.getElementById('editClipTitle').value = clip.title;
+      document.getElementById('editClipHook').value = clip.hook;
+      document.getElementById('editClipTranscript').value = clip.transcript;
+
+      if (clip.hook) {
+        hookBox.classList.remove('hidden');
+        hookText.textContent = clip.hook;
+      } else {
+        hookBox.classList.add('hidden');
+      }
+
+      if (clip.videoUrl) {
+        if (vid.src !== clip.videoUrl) vid.src = clip.videoUrl;
+        vid.classList.remove('hidden');
+        cvs.classList.add('hidden');
+      } else {
+        vid.classList.add('hidden');
+        cvs.classList.remove('hidden');
+        drawSyntheticFrame(cvs, previewTime);
+      }
+
+      updateCaptionOverlay(clip);
+      const total = clip.duration || 30;
+      const pct = Math.min(100, Math.round((previewTime / total) * 100));
+      document.getElementById('previewScrubber').value = pct;
+      document.getElementById('previewTimecode').textContent = `${formatSec(previewTime)} / ${formatSec(total)}`;
+    }
+
+    function formatSec(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+
+    function drawSyntheticFrame(canvas, t) {
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = 270;
+      const h = canvas.height = 480;
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, '#141926');
+      grad.addColorStop(0.5, '#1e1b2e');
+      grad.addColorStop(1, '#0d1117');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.fillStyle = 'rgba(249, 115, 22, 0.35)';
+      for (let i = 0; i < 24; i++) {
+        const barH = 16 + Math.abs(Math.sin(t * 3 + i * 0.6)) * 54;
+        ctx.fillRect(18 + i * 10, h * 0.45 - barH / 2, 6, barH);
+      }
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.font = '600 11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('9:16 VERTICAL CROP PREVIEW', w / 2, h * 0.32);
+    }
+
+    function updateCaptionOverlay(clip) {
+      const box = document.getElementById('previewCaptionBox');
+      const words = (clip.transcript || '').trim().split(/\s+/).filter(Boolean);
+      if (words.length === 0) { box.innerHTML = ''; return; }
+      const total = clip.duration || 30;
+      const wordIdx = Math.min(words.length - 1, Math.floor((previewTime / total) * words.length));
+      const chunkStart = Math.floor(wordIdx / 3) * 3;
+      const chunk = words.slice(chunkStart, chunkStart + 3);
+
+      let cls = 'font-anton text-xl uppercase tracking-wide ';
+      let bg = 'bg-transparent';
+      if (clip.style === 'archivo') {
+        cls = 'font-archivo text-base uppercase ';
+        bg = 'bg-black/80 px-2.5 py-1 rounded';
+      } else if (clip.style === 'poppins') {
+        cls = 'font-poppins text-base font-bold ';
+        bg = 'bg-white text-black px-2.5 py-1 rounded';
+      }
+
+      box.className = `inline-block ${bg}`;
+      box.innerHTML = chunk.map((w, idx) => {
+        const isCurrent = (chunkStart + idx) === wordIdx;
+        const color = clip.style === 'poppins'
+          ? (isCurrent ? 'text-[#ea580c]' : 'text-black')
+          : (isCurrent ? 'text-[#facc15]' : 'text-white');
+        return `<span class="${cls} ${color} mx-1">${escapeHtml(w)}</span>`;
+      }).join('');
+    }
+
+    function togglePreviewPlayback() {
+      const vid = document.getElementById('previewVideo');
+      const btn = document.getElementById('playPausePreviewBtn');
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+
+      previewPlaying = !previewPlaying;
+      btn.textContent = previewPlaying ? 'Pause' : 'Play';
+      clearInterval(previewTimer);
+      if (previewPlaying) {
+        if (clip.videoUrl) vid.play().catch(() => {});
+        previewTimer = setInterval(() => {
+          previewTime += 0.25;
+          if (previewTime >= (clip.duration || 30)) previewTime = 0;
+          renderPreview();
+        }, 250);
+      } else {
+        if (clip.videoUrl) vid.pause();
+      }
+    }
+
+    function renderLiveSessions() {
+      document.getElementById('liveSlotBadge').textContent = `${state.liveSessions.length} / 2 Active Streams`;
+      const container = document.getElementById('liveSessionsContainer');
+      if (state.liveSessions.length === 0) {
+        container.innerHTML = `<div class="panel p-6 text-center text-xs text-[#94a3b8] lg:col-span-2">No live streams recording. Enter a Twitch, Kick, or YouTube Live URL above to start.</div>`;
+        return;
+      }
+      container.innerHTML = state.liveSessions.map(s => {
+        const ws = state.workspaces.find(w => w.id === s.workspaceId);
+        return `
+          <div class="panel p-4 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="tag tag-red">LIVE</span>
+                  <span class="text-xs font-semibold truncate">${escapeHtml(s.url)}</span>
+                </div>
+                <p class="text-[11px] text-[#94a3b8] mt-0.5">Workspace: ${ws ? escapeHtml(ws.name) : ''} · Rolling buffer: ${formatSec(s.uptimeSec)}</p>
+              </div>
+              <button class="btn btn-danger text-xs py-1 px-2.5" data-stop-live="${s.id}">Stop</button>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="panel-2 p-2">
+                <p class="text-[10px] text-[#94a3b8]">Loudness</p>
+                <p class="text-sm font-bold">${s.loudnessDb} dBFS</p>
+              </div>
+              <div class="panel-2 p-2">
+                <p class="text-[10px] text-[#94a3b8]">Chat Rate</p>
+                <p class="text-sm font-bold">${s.chatPerMin}/min</p>
+              </div>
+              <div class="panel-2 p-2">
+                <p class="text-[10px] text-[#94a3b8]">Clips Captured</p>
+                <p class="text-sm font-bold text-[#86efac]">${s.clipsCaptured}</p>
+              </div>
+            </div>
+            <div class="panel-2 p-2.5 text-xs text-[#cbd5e1]">
+              <span class="text-[10px] uppercase text-[#94a3b8] block mb-0.5">Live Transcript Tail</span>
+              ${escapeHtml(s.transcriptTail)}
+            </div>
+            <button class="btn btn-primary w-full text-xs" data-clip-live="${s.id}">Clip Last 45s Now</button>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('[data-stop-live]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.liveSessions = state.liveSessions.filter(x => x.id !== btn.dataset.stopLive);
+          saveState();
+          renderLiveSessions();
+          showToast('Live recording stopped');
+        });
+      });
+
+      container.querySelectorAll('[data-clip-live]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const s = state.liveSessions.find(x => x.id === btn.dataset.clipLive);
+          if (!s) return;
+          s.clipsCaptured += 1;
+          const ws = state.workspaces.find(w => w.id === s.workspaceId);
+          state.clips.unshift({
+            id: 'clip-' + Date.now(),
+            workspaceId: s.workspaceId,
+            title: `Live Highlight #${s.clipsCaptured}`,
+            hook: 'Caught live on stream!',
+            sourceTitle: s.url,
+            duration: 38,
+            style: ws ? ws.captionStyle : 'anton',
+            score: 92,
+            videoUrl: null,
+            transcript: s.transcriptTail + ' That moment was insane, clip that right now!'
+          });
+          saveState();
+          renderAll();
+          showToast('Live highlight clipped and added to Studio');
+        });
+      });
+    }
+
+    function renderWorkspaces() {
+      const list = document.getElementById('workspacesList');
+      list.innerHTML = state.workspaces.map(w => `
+        <div class="panel p-3 cursor-pointer ${w.id === state.selectedWorkspaceId ? 'border-[#f97316]' : ''}" data-ws-id="${w.id}">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold">${escapeHtml(w.name)}</span>
+            <span class="tag">${escapeHtml(w.platform)}</span>
+          </div>
+          <p class="text-[11px] text-[#94a3b8] truncate mt-1">${escapeHtml(w.channel)}</p>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('[data-ws-id]').forEach(el => {
+        el.addEventListener('click', () => {
+          state.selectedWorkspaceId = el.dataset.wsId;
+          renderWorkspaces();
+        });
+      });
+
+      const ws = state.workspaces.find(w => w.id === state.selectedWorkspaceId) || state.workspaces[0];
+      const detail = document.getElementById('workspaceDetail');
+      if (!ws) { detail.innerHTML = ''; return; }
+
+      detail.innerHTML = `
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-semibold">${escapeHtml(ws.name)}</h2>
+          <span class="tag ${ws.autoPost ? 'tag-green' : ''}">${ws.autoPost ? 'Auto-post ON' : 'Manual Queue'}</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-[#94a3b8] mb-1">Workspace Name</label>
+            <input id="wsEditName" class="input" value="${escapeHtml(ws.name)}" />
+          </div>
+          <div>
+            <label class="block text-[#94a3b8] mb-1">Channel URL</label>
+            <input id="wsEditChannel" class="input" value="${escapeHtml(ws.channel)}" />
+          </div>
+          <div>
+            <label class="block text-[#94a3b8] mb-1">Default Caption Style</label>
+            <select id="wsEditStyle" class="input">
+              <option value="anton" ${ws.captionStyle === 'anton' ? 'selected' : ''}>Style 1: Anton Bold Pop</option>
+              <option value="archivo" ${ws.captionStyle === 'archivo' ? 'selected' : ''}>Style 2: Archivo Box</option>
+              <option value="poppins" ${ws.captionStyle === 'poppins' ? 'selected' : ''}>Style 3: Poppins Clean</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[#94a3b8] mb-1">Posting Spacing (hours) &amp; Daily Cap</label>
+            <div class="flex gap-2">
+              <input id="wsEditSpacing" type="number" min="1" max="24" class="input" value="${ws.spacingHours}" />
+              <input id="wsEditCap" type="number" min="1" max="20" class="input" value="${ws.dailyCap}" />
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <label class="flex items-center gap-2 text-xs cursor-pointer">
+            <input id="wsEditAutoPost" type="checkbox" ${ws.autoPost ? 'checked' : ''} class="accent-[#f97316]" />
+            <span>Auto-post finished clips to connected accounts</span>
+          </label>
+          <button id="saveWorkspaceBtn" class="btn btn-primary text-xs">Save Workspace</button>
+        </div>
+        <div class="border-t border-[#252a36] pt-3">
+          <p class="text-xs font-semibold mb-2">Activity Log</p>
+          <ul class="space-y-1 text-[11px] text-[#94a3b8]">
+            ${ws.logs.map(l => `<li>• ${escapeHtml(l)}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+
+      document.getElementById('saveWorkspaceBtn').addEventListener('click', () => {
+        ws.name = document.getElementById('wsEditName').value.trim() || ws.name;
+        ws.channel = document.getElementById('wsEditChannel').value.trim() || ws.channel;
+        ws.captionStyle = document.getElementById('wsEditStyle').value;
+        ws.spacingHours = Number(document.getElementById('wsEditSpacing').value) || 4;
+        ws.dailyCap = Number(document.getElementById('wsEditCap').value) || 3;
+        ws.autoPost = document.getElementById('wsEditAutoPost').checked;
+        ws.logs.unshift('Updated workspace settings');
+        saveState();
+        renderAll();
+        showToast('Workspace saved');
+      });
+    }
+
+    function renderPostQueue() {
+      const summary = document.getElementById('connectedAppsSummary');
+      summary.innerHTML = Object.entries(state.connectedApps).map(([k, v]) => `
+        <span class="tag ${v.connected ? 'tag-green' : ''}">${k.toUpperCase()}: ${v.connected ? escapeHtml(v.account || 'Connected') : 'Not connected'}</span>
+      `).join('');
+
+      const list = document.getElementById('postQueueList');
+      if (state.postQueue.length === 0) {
+        list.innerHTML = `<div class="panel p-6 text-center text-xs text-[#94a3b8]">Post queue is empty. Select a clip in Studio and click "Queue to Post".</div>`;
+        return;
+      }
+      list.innerHTML = state.postQueue.map(p => `
+        <div class="panel p-3.5 flex items-center justify-between gap-3 flex-wrap">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span class="tag tag-blue">${escapeHtml(p.platform)}</span>
+              <span class="text-xs font-semibold truncate">${escapeHtml(p.title)}</span>
+            </div>
+            <p class="text-[11px] text-[#94a3b8] mt-1">Status: ${escapeHtml(p.status)} · Window: ${escapeHtml(p.scheduledFor)}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="btn btn-primary text-xs py-1 px-2.5" data-post-now="${p.id}">Post Now</button>
+            <button class="btn text-xs py-1 px-2.5" data-remove-post="${p.id}">Remove</button>
+          </div>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('[data-post-now]').forEach(b => {
+        b.addEventListener('click', () => {
+          const item = state.postQueue.find(x => x.id === b.dataset.postNow);
+          if (item) {
+            item.status = 'Posted (Private/Unlisted per API status)';
+            saveState();
+            renderPostQueue();
+            showToast(`Posted to ${item.platform}`);
+          }
+        });
+      });
+      list.querySelectorAll('[data-remove-post]').forEach(b => {
+        b.addEventListener('click', () => {
+          state.postQueue = state.postQueue.filter(x => x.id !== b.dataset.removePost);
+          saveState();
+          renderAll();
+        });
+      });
+    }
+
+    function renderUsage() {
+      const reqs = state.usageRecords.reduce((a, r) => a + r.requests, 0);
+      const tIn = state.usageRecords.reduce((a, r) => a + r.tokensIn, 0);
+      const tOut = state.usageRecords.reduce((a, r) => a + r.tokensOut, 0);
+      document.getElementById('usageTotalReqs').textContent = reqs.toLocaleString();
+      document.getElementById('usageInputTokens').textContent = tIn.toLocaleString();
+      document.getElementById('usageOutputTokens').textContent = tOut.toLocaleString();
+
+      document.getElementById('usageTableBody').innerHTML = state.usageRecords.map(r => `
+        <tr>
+          <td class="py-2 pr-3 font-medium">${escapeHtml(r.source)}</td>
+          <td class="py-2 pr-3 text-[#94a3b8]">${escapeHtml(r.provider)}</td>
+          <td class="py-2 pr-3">${r.requests}</td>
+          <td class="py-2 pr-3 font-mono">${r.tokensIn.toLocaleString()}</td>
+          <td class="py-2 pr-3 font-mono">${r.tokensOut.toLocaleString()}</td>
+          <td class="py-2">${r.clips}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderUsageChart() {
+      const ctx = document.getElementById('usageChart');
+      if (!ctx || typeof Chart === 'undefined') return;
+      if (usageChartInstance) usageChartInstance.destroy();
+      const labels = state.usageRecords.slice(0, 6).map(r => r.source.slice(0, 20));
+      usageChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Tokens In', data: state.usageRecords.slice(0, 6).map(r => r.tokensIn), backgroundColor: '#f97316' },
+            { label: 'Tokens Out', data: state.usageRecords.slice(0, 6).map(r => r.tokensOut), backgroundColor: '#3b82f6' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: '#252a36' } },
+            y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: '#252a36' } }
+          }
+        }
+      });
+    }
+
+    function renderSettings() {
+      document.getElementById('aiProviderSelect').value = state.ai.provider;
+      document.getElementById('aiModelsInput').value = state.ai.models;
+      document.getElementById('aiKeyInput').value = state.ai.key;
+      document.getElementById('aiBaseUrlInput').value = state.ai.baseUrl;
+      document.getElementById('aiBaseUrlWrap').classList.toggle('hidden', state.ai.provider !== 'custom' && state.ai.provider !== 'ollama');
+      document.getElementById('accountsModeToggle').checked = state.accountsEnabled;
+
+      const appsContainer = document.getElementById('connectedAppsCards');
+      appsContainer.innerHTML = Object.entries(state.connectedApps).map(([key, app]) => `
+        <div class="panel-2 p-3.5 flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold capitalize">${key}</span>
+              <span class="tag ${app.connected ? 'tag-green' : ''}">${app.connected ? 'Connected' : 'Disconnected'}</span>
+            </div>
+            <p class="text-[11px] text-[#94a3b8] mt-1">${escapeHtml(app.note)}</p>
+            <p class="text-[10px] font-mono text-[#64748b] mt-0.5">Redirect: ${escapeHtml(app.redirect)}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="btn text-xs py-1 px-2.5" data-copy-redirect="${escapeHtml(app.redirect)}">Copy Redirect</button>
+            <button class="btn ${app.connected ? 'btn-danger' : 'btn-primary'} text-xs py-1 px-3" data-toggle-app="${key}">
+              ${app.connected ? 'Disconnect' : 'Connect'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      appsContainer.querySelectorAll('[data-copy-redirect]').forEach(b => {
+        b.addEventListener('click', () => {
+          const txt = b.dataset.copyRedirect;
+          if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+          showToast('Redirect URI copied');
+        });
+      });
+      appsContainer.querySelectorAll('[data-toggle-app]').forEach(b => {
+        b.addEventListener('click', () => {
+          const k = b.dataset.toggleApp;
+          const app = state.connectedApps[k];
+          app.connected = !app.connected;
+          app.account = app.connected ? `@creator_${k}` : '';
+          saveState();
+          renderAll();
+          showToast(`${k} ${app.connected ? 'connected' : 'disconnected'}`);
+        });
+      });
+    }
+
+    function renderAdmin() {
+      const list = document.getElementById('adminUsersList');
+      list.innerHTML = state.adminUsers.map(u => `
+        <div class="panel-2 p-2.5 flex items-center justify-between text-xs">
+          <div>
+            <span class="font-medium">${escapeHtml(u.email)}</span>
+            <span class="text-[#94a3b8] ml-2">${u.jobsCount} jobs</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="tag ${u.role === 'admin' ? 'tag-orange' : ''}">${u.role}</span>
+            <button class="btn text-[11px] py-1 px-2" data-toggle-role="${escapeHtml(u.email)}">
+              ${u.role === 'admin' ? 'Revoke Admin' : 'Grant Admin'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('[data-toggle-role]').forEach(b => {
+        b.addEventListener('click', () => {
+          const u = state.adminUsers.find(x => x.email === b.dataset.toggleRole);
+          if (u) {
+            u.role = u.role === 'admin' ? 'user' : 'admin';
+            saveState();
+            renderAdmin();
+            showToast(`Updated role for ${u.email}`);
+          }
+        });
+      });
+    }
+
+    document.querySelectorAll('#mainNav .nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchView(btn.dataset.view));
+    });
+
+    document.querySelectorAll('.android-nav-item').forEach(btn => {
+      btn.addEventListener('click', () => switchView(btn.dataset.view));
+    });
+
+    document.getElementById('toggleAndroidModeBtn').addEventListener('click', () => {
+      state.androidMode = !state.androidMode;
+      saveState();
+      renderAll();
+      showToast(state.androidMode ? 'Switched to Android Material 3 App View' : 'Switched to Desktop Web View');
+    });
+
+    document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.settings-tab-btn').forEach(x => x.classList.remove('active'));
+        btn.classList.add('active');
+        ['ai', 'apps', 'account'].forEach(t => {
+          document.getElementById('stab-' + t).classList.toggle('hidden', t !== btn.dataset.stab);
+        });
+      });
+    });
+
+    document.getElementById('addUrlJobBtn').addEventListener('click', () => {
+      const url = document.getElementById('videoUrlInput').value.trim();
+      if (!url) { showToast('Paste a YouTube, Twitch, or Kick URL first'); return; }
+      document.getElementById('videoUrlInput').value = '';
+      startClipJob(url);
+    });
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileUploadInput');
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-[#f97316]'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[#f97316]'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-[#f97316]');
+      handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+    function handleFiles(files) {
+      const list = Array.from(files).slice(0, 5);
+      if (list.length === 0) return;
+      list.forEach(f => {
+        const blobUrl = URL.createObjectURL(f);
+        startClipJob(f.name, blobUrl);
+      });
+    }
+
+    document.getElementById('simulateDemoJobBtn').addEventListener('click', () => {
+      startClipJob('https://youtube.com/watch?v=peakcut_demo_' + Math.floor(Math.random() * 90 + 10));
+    });
+
+    document.getElementById('clipFilterWorkspace').addEventListener('change', renderClips);
+    document.getElementById('playPausePreviewBtn').addEventListener('click', togglePreviewPlayback);
+
+    document.getElementById('previewScrubber').addEventListener('input', (e) => {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+      previewTime = (Number(e.target.value) / 100) * (clip.duration || 30);
+      if (clip.videoUrl) document.getElementById('previewVideo').currentTime = previewTime;
+      renderPreview();
+    });
+
+    document.getElementById('prevStyleCycleBtn').addEventListener('click', () => {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+      const styles = ['anton', 'archivo', 'poppins'];
+      clip.style = styles[(styles.indexOf(clip.style) + 1) % styles.length];
+      saveState();
+      renderClips();
+      renderPreview();
+      showToast(`Caption style: ${clip.style}`);
+    });
+
+    document.getElementById('saveClipEditsBtn').addEventListener('click', () => {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+      clip.title = document.getElementById('editClipTitle').value.trim() || clip.title;
+      clip.hook = document.getElementById('editClipHook').value.trim();
+      clip.transcript = document.getElementById('editClipTranscript').value.trim();
+      saveState();
+      renderClips();
+      renderPreview();
+      showToast('Clip edits saved');
+    });
+
+    document.getElementById('queueClipPostBtn').addEventListener('click', () => {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+      const connected = Object.entries(state.connectedApps).filter(([, v]) => v.connected).map(([k]) => k.toUpperCase());
+      const platform = connected[0] || 'YouTube';
+      state.postQueue.unshift({
+        id: 'post-' + Date.now(),
+        clipId: clip.id,
+        title: clip.title,
+        platform,
+        workspaceId: clip.workspaceId,
+        status: 'Queued (Spacing respected)',
+        scheduledFor: 'Next available slot'
+      });
+      saveState();
+      renderAll();
+      showToast(`Queued "${clip.title}" for ${platform}`);
+    });
+
+    document.getElementById('downloadClipBtn').addEventListener('click', () => {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+      const srt = `1\n00:00:00,000 --> 00:00:${String(clip.duration).padStart(2, '0')},000\n${clip.transcript}\n`;
+      const blob = new Blob([srt], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${clip.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.srt`;
+      a.click();
+      showToast('Exported clip captions (.srt)');
+    });
+
+    document.getElementById('startLiveBtn').addEventListener('click', () => {
+      const url = document.getElementById('liveUrlInput').value.trim();
+      if (!url) { showToast('Enter a Twitch, Kick, or YouTube Live URL'); return; }
+      if (state.liveSessions.length >= 2) { showToast('Max concurrent live recordings reached (2)'); return; }
+      state.liveSessions.push({
+        id: 'live-' + Date.now(),
+        url,
+        workspaceId: document.getElementById('liveWorkspaceSelect').value,
+        status: 'Recording',
+        uptimeSec: 12,
+        loudnessDb: -16,
+        chatPerMin: 34,
+        clipsCaptured: 0,
+        transcriptTail: 'Stream buffer connected. Listening for loudness & chat spikes...'
+      });
+      document.getElementById('liveUrlInput').value = '';
+      saveState();
+      renderLiveSessions();
+      showToast('Live stream recording started');
+    });
+
+    document.getElementById('newWorkspaceBtn').addEventListener('click', () => {
+      const id = 'ws-' + Date.now();
+      state.workspaces.push({
+        id,
+        name: `Creator Workspace ${state.workspaces.length + 1}`,
+        platform: 'YouTube',
+        channel: 'https://youtube.com/@newcreator',
+        captionStyle: 'poppins',
+        hookEnabled: true,
+        targetDuration: 45,
+        autoPost: false,
+        spacingHours: 4,
+        dailyCap: 3,
+        logs: ['Workspace created']
+      });
+      state.selectedWorkspaceId = id;
+      saveState();
+      renderAll();
+      showToast('Workspace created');
+    });
+
+    document.getElementById('aiProviderSelect').addEventListener('change', (e) => {
+      const p = e.target.value;
+      document.getElementById('aiBaseUrlWrap').classList.toggle('hidden', p !== 'custom' && p !== 'ollama');
+      const suggested = PROVIDER_MODELS[p] || [];
+      if (suggested.length) document.getElementById('aiModelsInput').value = suggested[0];
+    });
+
+    document.getElementById('findModelsBtn').addEventListener('click', () => {
+      const p = document.getElementById('aiProviderSelect').value;
+      const list = PROVIDER_MODELS[p] || [];
+      const wrap = document.getElementById('foundModelsChips');
+      wrap.innerHTML = list.map(m => `<button type="button" class="tag cursor-pointer hover:border-[#f97316]" data-pick-model="${m}">${m}</button>`).join('');
+      wrap.querySelectorAll('[data-pick-model]').forEach(b => {
+        b.addEventListener('click', () => {
+          document.getElementById('aiModelsInput').value = b.dataset.pickModel;
+        });
+      });
+      showToast(list.length ? `Found ${list.length} models for ${p}` : 'No model needed for loudness-only mode');
+    });
+
+    document.getElementById('saveTestAiBtn').addEventListener('click', () => {
+      state.ai.provider = document.getElementById('aiProviderSelect').value;
+      state.ai.models = document.getElementById('aiModelsInput').value.trim();
+      state.ai.key = document.getElementById('aiKeyInput').value.trim();
+      state.ai.baseUrl = document.getElementById('aiBaseUrlInput').value.trim();
+      state.ai.tested = true;
+      saveState();
+      renderAll();
+      document.getElementById('aiTestStatus').textContent = state.ai.provider === 'none'
+        ? 'Saved: Loudness-only mode active'
+        : `Saved & verified (${state.ai.provider})`;
+      showToast('AI settings saved');
+    });
+
+    document.getElementById('accountsModeToggle').addEventListener('change', (e) => {
+      state.accountsEnabled = e.target.checked;
+      saveState();
+      renderAll();
+      showToast(`Accounts mode ${state.accountsEnabled ? 'enabled' : 'disabled'}`);
+    });
+
+    document.getElementById('signInTriggerBtn').addEventListener('click', () => {
+      openModal('Sign in to PeakCut', `
+        <p>PEAKCUT_ACCOUNTS=1 is active. Sign in with email or Google OAuth.</p>
+        <input id="loginEmailInput" type="email" class="input" value="${escapeHtml(state.signedInUser.email)}" />
+        <button id="confirmLoginBtn" class="btn btn-primary w-full">Sign in</button>
+      `);
+      document.getElementById('confirmLoginBtn').addEventListener('click', () => {
+        state.signedInUser.email = document.getElementById('loginEmailInput').value.trim() || 'owner@localhost';
+        saveState();
+        renderAll();
+        closeModal();
+        showToast(`Signed in as ${state.signedInUser.email}`);
+      });
+    });
+
+    document.getElementById('updateBadgeBtn').addEventListener('click', () => {
+      openModal('PeakCut Update Available', `
+        <p>A newer commit is available on <code class="text-[#f97316]">haziqahmedqasmi/PeakCut</code>.</p>
+        <div class="panel-2 p-2.5 font-mono text-[11px]">git pull &amp;&amp; pip install -r requirements.txt</div>
+        <p class="text-[#94a3b8]">Your .env, AI keys, and clips in ./data are never touched.</p>
+      `);
+    });
+
+    document.getElementById('openDataFolderBtn').addEventListener('click', () => {
+      openModal('Local Storage (PEAKCUT_DATA)', `
+        <p>Videos, rendered 9:16 clips, and SQLite/PostgreSQL metadata live in <code class="text-[#f97316]">./data</code>.</p>
+        <p class="text-[#94a3b8]">124 GB free · No upload size or video length caps configured.</p>
+      `);
+    });
+
+    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    document.getElementById('modalBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'modalBackdrop') closeModal();
+    });
+
+    setInterval(() => {
+      const cpu = 18 + Math.floor(Math.random() * 14) + state.jobs.length * 12;
+      const ram = 39 + Math.floor(Math.random() * 6);
+      const disk = 38;
+      document.getElementById('sysMiniReadout').textContent = `${Math.min(99, cpu)}% · ${ram}% · ${disk}%`;
+      document.getElementById('adminCpu').textContent = `${Math.min(99, cpu)}%`;
+      document.getElementById('adminRam').textContent = `${ram}%`;
+      document.getElementById('adminDisk').textContent = `${disk}%`;
+
+      state.liveSessions.forEach(s => {
+        s.uptimeSec += 1;
+        s.loudnessDb = -18 + Math.floor(Math.random() * 10);
+        s.chatPerMin = 30 + Math.floor(Math.random() * 35);
+      });
+      if (state.activeView === 'live') renderLiveSessions();
+    }, 1000);
+
+    renderAll();
+    switchView(state.activeView || 'dashboard');
+  </script>
+</body>
+</html>
