@@ -1,12 +1,23 @@
 package com.daninteractive.peakcut
 
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -31,11 +44,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 enum class CaptionStyle(val label: String) {
     ANTON("Style 1: Anton Bold Pop"),
     ARCHIVO("Style 2: Archivo Box"),
     POPPINS("Style 3: Poppins Clean")
+}
+
+enum class AspectPreset(val label: String, val ratio: Float) {
+    VERTICAL_9_16("9:16", 9f / 16f),
+    FEED_4_5("4:5", 4f / 5f),
+    SQUARE_1_1("1:1", 1f)
+}
+
+enum class AccentPreset(val label: String, val primary: Color, val container: Color) {
+    AMBER("PeakCut Amber", Color(0xFFF97316), Color(0xFF3A1E0A)),
+    INDIGO("Material Indigo", Color(0xFF818CF8), Color(0xFF1E224A)),
+    EMERALD("Studio Emerald", Color(0xFF34D399), Color(0xFF0E2F24)),
+    ROSE("Creator Rose", Color(0xFFFB7185), Color(0xFF3B1520))
 }
 
 data class CreatorWorkspace(
@@ -57,6 +84,9 @@ data class ClipItem(
     var hook: String,
     val sourceTitle: String,
     val durationSec: Int,
+    var trimStartSec: Float = 0f,
+    var trimEndSec: Float = durationSec.toFloat(),
+    var aspectPreset: AspectPreset = AspectPreset.VERTICAL_9_16,
     var style: CaptionStyle,
     val score: Int,
     var transcript: String,
@@ -113,35 +143,74 @@ data class AdminUser(
     val jobsCount: Int
 )
 
+private val PeakCutTypography = Typography(
+    titleLarge = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp, lineHeight = 26.sp, letterSpacing = (-0.2).sp),
+    titleMedium = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 21.sp),
+    titleSmall = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 13.sp, lineHeight = 18.sp),
+    bodyMedium = TextStyle(fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 19.sp),
+    bodySmall = TextStyle(fontWeight = FontWeight.Normal, fontSize = 11.sp, lineHeight = 16.sp),
+    labelLarge = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 13.sp, lineHeight = 18.sp),
+    labelMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 14.sp),
+    labelSmall = TextStyle(fontWeight = FontWeight.Medium, fontSize = 10.sp, lineHeight = 13.sp)
+)
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            PeakCutTheme {
-                PeakCutApp()
+            var useDynamicColor by remember { mutableStateOf(true) }
+            var accentPreset by remember { mutableStateOf(AccentPreset.AMBER) }
+            PeakCutTheme(useDynamicColor = useDynamicColor, accentPreset = accentPreset) {
+                PeakCutApp(
+                    useDynamicColor = useDynamicColor,
+                    onToggleDynamicColor = { useDynamicColor = it },
+                    accentPreset = accentPreset,
+                    onSelectAccent = { accentPreset = it }
+                )
             }
         }
     }
 }
 
 @Composable
-fun PeakCutTheme(content: @Composable () -> Unit) {
-    val darkColors = darkColorScheme(
-        primary = Color(0xFFF97316),
-        onPrimary = Color(0xFF0C0E12),
-        background = Color(0xFF0C0E12),
-        surface = Color(0xFF13161D),
-        surfaceVariant = Color(0xFF191D26),
-        onBackground = Color(0xFFF1F5F9),
-        onSurface = Color(0xFFF1F5F9),
-        outline = Color(0xFF252A36)
+fun PeakCutTheme(
+    useDynamicColor: Boolean = true,
+    accentPreset: AccentPreset = AccentPreset.AMBER,
+    content: @Composable () -> Unit
+) {
+    val context = LocalContext.current
+    val colorScheme = if (useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        dynamicDarkColorScheme(context)
+    } else {
+        darkColorScheme(
+            primary = accentPreset.primary,
+            onPrimary = Color(0xFF0C0E12),
+            primaryContainer = accentPreset.container,
+            onPrimaryContainer = accentPreset.primary,
+            background = Color(0xFF0C0E12),
+            surface = Color(0xFF13161D),
+            surfaceVariant = Color(0xFF1A1E28),
+            onBackground = Color(0xFFF1F5F9),
+            onSurface = Color(0xFFF1F5F9),
+            onSurfaceVariant = Color(0xFF94A3B8),
+            outline = Color(0xFF272D3B)
+        )
+    }
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = PeakCutTypography,
+        content = content
     )
-    MaterialTheme(colorScheme = darkColors, content = content)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PeakCutApp() {
+fun PeakCutApp(
+    useDynamicColor: Boolean,
+    onToggleDynamicColor: (Boolean) -> Unit,
+    accentPreset: AccentPreset,
+    onSelectAccent: (AccentPreset) -> Unit
+) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -150,7 +219,6 @@ fun PeakCutApp() {
     var signedInEmail by remember { mutableStateOf("owner@localhost") }
     var showUpdateDialog by remember { mutableStateOf(false) }
 
-    // AI configuration
     var aiProvider by remember { mutableStateOf("gemini") }
     var aiModels by remember { mutableStateOf("gemini-2.5-flash") }
     var aiKey by remember { mutableStateOf("") }
@@ -206,6 +274,8 @@ fun PeakCutApp() {
                 hook = "STOP paying \$30/mo for basic video clips",
                 sourceTitle = "Building Open Source Tools in 2026",
                 durationSec = 34,
+                trimStartSec = 0f,
+                trimEndSec = 34f,
                 style = CaptionStyle.ANTON,
                 score = 94,
                 transcript = "You do not need a cloud subscription just to cut a podcast into vertical shorts. Run the speech model locally and bring your own API key."
@@ -217,6 +287,8 @@ fun PeakCutApp() {
                 hook = "Chat went completely wild on this play",
                 sourceTitle = "Twitch VOD - Ranked Marathon",
                 durationSec = 26,
+                trimStartSec = 2f,
+                trimEndSec = 24f,
                 style = CaptionStyle.ARCHIVO,
                 score = 91,
                 transcript = "Wait watch the smoke on the left side. No way he hits that flick shot with two bullets left!"
@@ -270,7 +342,6 @@ fun PeakCutApp() {
         )
     }
 
-    // 1-second live telemetry & rolling buffer ticker
     var cpuLoad by remember { mutableStateOf(24) }
     var ramLoad by remember { mutableStateOf(41) }
     val diskFreeGb = 124
@@ -313,6 +384,8 @@ fun PeakCutApp() {
                 hook = "Wait until you hear this part...",
                 sourceTitle = sourceTitle,
                 durationSec = 36,
+                trimStartSec = 0f,
+                trimEndSec = 36f,
                 style = style,
                 score = 90,
                 transcript = "Once we moved speech transcription onto the local Parakeet model and paired it with automated 9:16 framing, clip output tripled.",
@@ -345,72 +418,84 @@ fun PeakCutApp() {
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Box(
                             modifier = Modifier
-                                .size(28.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(Color(0xFFF97316)),
+                                .size(30.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.primary),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("PC", color = Color(0xFF0C0E12), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Text("PC", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelLarge)
                         }
                         Column {
-                            Text("PeakCut", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text("CPU $cpuLoad% · RAM $ramLoad% · ${diskFreeGb}GB free", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                            Text("PeakCut", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                "CPU $cpuLoad% · RAM $ramLoad% · ${diskFreeGb}GB free",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 },
                 actions = {
                     AssistChip(
                         onClick = { showUpdateDialog = true },
-                        label = { Text("Update", fontSize = 11.sp) }
+                        label = { Text("Update", style = MaterialTheme.typography.labelMedium) }
                     )
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(8.dp))
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF13161D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         },
         bottomBar = {
-            NavigationBar(containerColor = Color(0xFF13161D)) {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                 NavigationBarItem(
                     selected = currentTab == "studio",
                     onClick = { currentTab = "studio" },
                     icon = { Icon(Icons.Default.Movie, contentDescription = null) },
-                    label = { Text("Studio", fontSize = 10.sp) }
+                    label = { Text("Studio", style = MaterialTheme.typography.labelSmall) }
                 )
                 NavigationBarItem(
                     selected = currentTab == "live",
                     onClick = { currentTab = "live" },
                     icon = { Icon(Icons.Default.Sensors, contentDescription = null) },
-                    label = { Text("Live (${liveSessions.size})", fontSize = 10.sp) }
+                    label = { Text("Live (${liveSessions.size})", style = MaterialTheme.typography.labelSmall) }
                 )
                 NavigationBarItem(
                     selected = currentTab == "workspaces",
                     onClick = { currentTab = "workspaces" },
                     icon = { Icon(Icons.Default.Folder, contentDescription = null) },
-                    label = { Text("Creators", fontSize = 10.sp) }
+                    label = { Text("Creators", style = MaterialTheme.typography.labelSmall) }
                 )
                 NavigationBarItem(
                     selected = currentTab == "posting",
                     onClick = { currentTab = "posting" },
                     icon = { Icon(Icons.Default.ScheduleSend, contentDescription = null) },
-                    label = { Text("Post (${postQueue.size})", fontSize = 10.sp) }
+                    label = { Text("Post (${postQueue.size})", style = MaterialTheme.typography.labelSmall) }
                 )
                 NavigationBarItem(
                     selected = currentTab == "settings",
                     onClick = { currentTab = "settings" },
                     icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                    label = { Text("AI & Admin", fontSize = 10.sp) }
+                    label = { Text("AI & Admin", style = MaterialTheme.typography.labelSmall) }
                 )
             }
         }
     ) { padding ->
-        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-            when (currentTab) {
+        AnimatedContent(
+            targetState = currentTab,
+            modifier = Modifier.padding(padding).fillMaxSize(),
+            transitionSpec = {
+                (fadeIn(tween(180)) + slideInVertically(tween(180)) { it / 28 }) togetherWith fadeOut(tween(120))
+            },
+            label = "PeakCutTabTransition"
+        ) { tab ->
+            when (tab) {
                 "studio" -> StudioScreen(
                     clips = clips,
                     selectedClipId = selectedClipId,
@@ -444,6 +529,8 @@ fun PeakCutApp() {
                                 hook = "Caught live on stream!",
                                 sourceTitle = session.url,
                                 durationSec = 38,
+                                trimStartSec = 0f,
+                                trimEndSec = 38f,
                                 style = CaptionStyle.ANTON,
                                 score = 92,
                                 transcript = session.transcriptTail + " That play was unreal!"
@@ -471,7 +558,11 @@ fun PeakCutApp() {
                     accountsEnabled = accountsEnabled,
                     onToggleAccounts = { accountsEnabled = it },
                     signedInEmail = signedInEmail,
-                    adminUsers = adminUsers
+                    adminUsers = adminUsers,
+                    useDynamicColor = useDynamicColor,
+                    onToggleDynamicColor = onToggleDynamicColor,
+                    accentPreset = accentPreset,
+                    onSelectAccent = onSelectAccent
                 )
             }
         }
@@ -480,9 +571,12 @@ fun PeakCutApp() {
     if (showUpdateDialog) {
         AlertDialog(
             onDismissRequest = { showUpdateDialog = false },
-            title = { Text("PeakCut Update Check") },
+            title = { Text("PeakCut Update Check", style = MaterialTheme.typography.titleMedium) },
             text = {
-                Text("PeakCut checks GitHub every few hours (PEAKCUT_UPDATE_CHECK=1). Run `git pull && pip install -r requirements.txt` on your host server. Your .env, AI keys, and ./data clips stay untouched.")
+                Text(
+                    "PeakCut checks GitHub every few hours (PEAKCUT_UPDATE_CHECK=1). Run `git pull && pip install -r requirements.txt` on your host server. Your .env, AI keys, and ./data clips stay untouched.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             },
             confirmButton = {
                 TextButton(onClick = { showUpdateDialog = false }) { Text("Got it") }
@@ -491,6 +585,7 @@ fun PeakCutApp() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudioScreen(
     clips: MutableList<ClipItem>,
@@ -506,13 +601,13 @@ fun StudioScreen(
     val selectedClip = clips.find { it.id == selectedClipId } ?: clips.firstOrNull()
 
     var isPlaying by remember { mutableStateOf(false) }
-    var playheadSec by remember { mutableStateOf(0f) }
+    var playheadSec by remember(selectedClip?.id) { mutableStateOf(selectedClip?.trimStartSec ?: 0f) }
 
-    LaunchedEffect(isPlaying, selectedClip?.id) {
+    LaunchedEffect(isPlaying, selectedClip?.id, selectedClip?.trimStartSec, selectedClip?.trimEndSec) {
         while (isPlaying && selectedClip != null) {
-            delay(250)
-            playheadSec += 0.25f
-            if (playheadSec >= selectedClip.durationSec) playheadSec = 0f
+            delay(100)
+            playheadSec += 0.1f
+            if (playheadSec >= selectedClip.trimEndSec) playheadSec = selectedClip.trimStartSec
         }
     }
 
@@ -521,13 +616,13 @@ fun StudioScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF13161D))) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Clip a Video (YouTube, Twitch, Kick or Up to 5 Files)", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Clip a Video (YouTube, Twitch, Kick or Up to 5 Files)", style = MaterialTheme.typography.titleSmall)
                     OutlinedTextField(
                         value = urlInput,
                         onValueChange = { urlInput = it },
-                        placeholder = { Text("https://youtube.com/watch?v=...", fontSize = 12.sp) },
+                        placeholder = { Text("https://youtube.com/watch?v=...", style = MaterialTheme.typography.bodySmall) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -544,21 +639,26 @@ fun StudioScreen(
                             Text("Find & Clip")
                         }
                         OutlinedButton(onClick = onPickFiles, modifier = Modifier.weight(1f)) {
-                            Text("Upload Videos (5 max)")
+                            Text("Upload Videos (5)")
                         }
                     }
                 }
             }
         }
 
-        if (activeJobs.isNotEmpty()) {
-            item {
-                Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF191D26))) {
-                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Fair Queue (${activeJobs.size} running)", fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+        item {
+            AnimatedVisibility(
+                visible = activeJobs.isNotEmpty(),
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Fair Queue (${activeJobs.size} running)", style = MaterialTheme.typography.titleSmall)
                         activeJobs.forEach { job ->
-                            Text("${job.title} — ${job.stage}", fontSize = 11.sp, color = Color(0xFF94A3B8))
-                            LinearProgressIndicator(progress = { job.progress }, modifier = Modifier.fillMaxWidth())
+                            val smoothProgress by animateFloatAsState(targetValue = job.progress, animationSpec = tween(250), label = "jobProgress")
+                            Text("${job.title} — ${job.stage}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            LinearProgressIndicator(progress = { smoothProgress }, modifier = Modifier.fillMaxWidth())
                         }
                     }
                 }
@@ -567,41 +667,49 @@ fun StudioScreen(
 
         if (selectedClip != null) {
             item {
-                Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF13161D))) {
-                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("9:16 Vertical Preview (${selectedClip.style.name})", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                            TextButton(onClick = {
-                                val next = CaptionStyle.entries[(selectedClip.style.ordinal + 1) % CaptionStyle.entries.size]
-                                val idx = clips.indexOfFirst { it.id == selectedClip.id }
-                                if (idx >= 0) clips[idx] = selectedClip.copy(style = next)
-                            }) {
-                                Text("Switch Style")
+                            Text("${selectedClip.aspectPreset.label} Preview (${selectedClip.style.name})", style = MaterialTheme.typography.titleSmall)
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                TextButton(onClick = {
+                                    val nextAspect = AspectPreset.entries[(selectedClip.aspectPreset.ordinal + 1) % AspectPreset.entries.size]
+                                    val idx = clips.indexOfFirst { it.id == selectedClip.id }
+                                    if (idx >= 0) clips[idx] = selectedClip.copy(aspectPreset = nextAspect)
+                                }) {
+                                    Text(selectedClip.aspectPreset.label)
+                                }
+                                TextButton(onClick = {
+                                    val next = CaptionStyle.entries[(selectedClip.style.ordinal + 1) % CaptionStyle.entries.size]
+                                    val idx = clips.indexOfFirst { it.id == selectedClip.id }
+                                    if (idx >= 0) clips[idx] = selectedClip.copy(style = next)
+                                }) {
+                                    Text("Style")
+                                }
                             }
                         }
 
-                        // 9:16 Phone Canvas
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(320.dp)
-                                .clip(RoundedCornerShape(14.dp))
+                                .height(300.dp)
+                                .clip(RoundedCornerShape(16.dp))
                                 .background(Color(0xFF07090D))
-                                .border(1.dp, Color(0xFF252A36), RoundedCornerShape(14.dp))
+                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
                                 .padding(12.dp)
                         ) {
                             if (selectedClip.hook.isNotBlank()) {
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.TopCenter)
-                                        .background(Color.Black.copy(alpha = 0.75f), RoundedCornerShape(6.dp))
+                                        .background(Color.Black.copy(alpha = 0.78f), RoundedCornerShape(8.dp))
                                         .padding(horizontal = 10.dp, vertical = 6.dp)
                                 ) {
-                                    Text(selectedClip.hook, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp, textAlign = TextAlign.Center)
+                                    Text(selectedClip.hook, color = Color.White, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center)
                                 }
                             }
 
@@ -613,20 +721,20 @@ fun StudioScreen(
                             Box(
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
-                                    .padding(bottom = 24.dp)
+                                    .padding(bottom = 22.dp)
                                     .background(
                                         when (selectedClip.style) {
                                             CaptionStyle.ANTON -> Color.Transparent
                                             CaptionStyle.ARCHIVO -> Color.Black.copy(alpha = 0.85f)
                                             CaptionStyle.POPPINS -> Color.White
                                         },
-                                        RoundedCornerShape(6.dp)
+                                        RoundedCornerShape(8.dp)
                                     )
                                     .padding(horizontal = 10.dp, vertical = 6.dp)
                             ) {
                                 Text(
                                     text = chunk.joinToString(" "),
-                                    color = if (selectedClip.style == CaptionStyle.POPPINS) Color(0xFFEA580C) else Color(0xFFFACC15),
+                                    color = if (selectedClip.style == CaptionStyle.POPPINS) MaterialTheme.colorScheme.primary else Color(0xFFFACC15),
                                     fontWeight = FontWeight.ExtraBold,
                                     fontSize = 16.sp,
                                     textAlign = TextAlign.Center
@@ -634,18 +742,53 @@ fun StudioScreen(
                             }
                         }
 
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = { isPlaying = !isPlaying }) {
-                                Text(if (isPlaying) "Pause" else "Play")
+                        // Playback & 30fps frame-step controls
+                        val frameNum = (playheadSec * 30f).roundToInt()
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Button(onClick = { isPlaying = !isPlaying }, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
+                                Text(if (isPlaying) "Pause" else "Play", style = MaterialTheme.typography.labelMedium)
                             }
+                            OutlinedButton(
+                                onClick = {
+                                    isPlaying = false
+                                    playheadSec = (playheadSec - (1f / 30f)).coerceAtLeast(selectedClip.trimStartSec)
+                                },
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                            ) { Text("-1f", style = MaterialTheme.typography.labelSmall) }
+                            OutlinedButton(
+                                onClick = {
+                                    isPlaying = false
+                                    playheadSec = (playheadSec + (1f / 30f)).coerceAtMost(selectedClip.trimEndSec)
+                                },
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                            ) { Text("+1f", style = MaterialTheme.typography.labelSmall) }
                             Slider(
-                                value = playheadSec,
+                                value = playheadSec.coerceIn(0f, selectedClip.durationSec.toFloat()),
                                 onValueChange = { playheadSec = it },
                                 valueRange = 0f..selectedClip.durationSec.toFloat(),
                                 modifier = Modifier.weight(1f)
                             )
-                            Text("${playheadSec.toInt()}s/${selectedClip.durationSec}s", fontSize = 11.sp, fontFamily = FontFamily.Monospace)
                         }
+                        Text(
+                            "Playhead: ${String.format("%.2fs", playheadSec)} (Frame #$frameNum @ 30fps) · Trim: ${String.format("%.1fs", selectedClip.trimStartSec)} – ${String.format("%.1fs", selectedClip.trimEndSec)}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontFamily = FontFamily.Monospace,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        // Frame-accurate Trim In / Trim Out RangeSlider
+                        RangeSlider(
+                            value = selectedClip.trimStartSec..selectedClip.trimEndSec,
+                            onValueChange = { range ->
+                                val minGap = 1.0f
+                                val start = range.start.coerceIn(0f, (selectedClip.durationSec - minGap).coerceAtLeast(0f))
+                                val end = range.endInclusive.coerceIn(start + minGap, selectedClip.durationSec.toFloat())
+                                val idx = clips.indexOfFirst { it.id == selectedClip.id }
+                                if (idx >= 0) clips[idx] = selectedClip.copy(trimStartSec = start, trimEndSec = end)
+                                if (playheadSec < start || playheadSec > end) playheadSec = start
+                            },
+                            valueRange = 0f..selectedClip.durationSec.toFloat()
+                        )
 
                         OutlinedTextField(
                             value = selectedClip.hook,
@@ -669,7 +812,7 @@ fun StudioScreen(
                         )
 
                         Button(onClick = { onQueuePost(selectedClip) }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Queue Clip to Connected Accounts")
+                            Text("Queue Trimmed Clip to Connected Accounts")
                         }
                     }
                 }
@@ -680,7 +823,7 @@ fun StudioScreen(
             Card(
                 modifier = Modifier.fillMaxWidth().clickable { onSelectClip(clip.id) },
                 colors = CardDefaults.cardColors(
-                    containerColor = if (clip.id == selectedClip?.id) Color(0xFF1F2430) else Color(0xFF13161D)
+                    containerColor = if (clip.id == selectedClip?.id) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
                 )
             ) {
                 Row(
@@ -689,8 +832,12 @@ fun StudioScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(clip.title, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text("${clip.sourceTitle} · ${clip.durationSec}s · Score ${clip.score}", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                        Text(clip.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(
+                            "${clip.sourceTitle} · ${(clip.trimEndSec - clip.trimStartSec).roundToInt()}s · ${clip.aspectPreset.label} · Score ${clip.score}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                     IconButton(onClick = { clips.remove(clip) }) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete")
@@ -711,10 +858,10 @@ fun LiveClippingScreen(
     var streamUrl by remember { mutableStateOf("") }
     LazyColumn(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF13161D))) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Live Stream Rolling Buffer", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text("Records Twitch, Kick, or YouTube streams and clips highlights using loudness, chat activity, and transcript.", fontSize = 11.sp, color = Color(0xFF94A3B8))
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Live Stream Rolling Buffer", style = MaterialTheme.typography.titleMedium)
+                    Text("Records Twitch, Kick, or YouTube streams and clips highlights using loudness, chat activity, and transcript.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     OutlinedTextField(
                         value = streamUrl,
                         onValueChange = { streamUrl = it },
@@ -738,14 +885,14 @@ fun LiveClippingScreen(
         }
 
         items(sessions, key = { it.id }) { s ->
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF13161D))) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("LIVE · ${s.url}", fontWeight = FontWeight.Bold, color = Color(0xFFFCA5A5), fontSize = 13.sp)
+                        Text("LIVE · ${s.url}", style = MaterialTheme.typography.titleSmall, color = Color(0xFFFCA5A5))
                         TextButton(onClick = { onStopLive(s.id) }) { Text("Stop") }
                     }
-                    Text("Loudness: ${s.loudnessDb} dBFS · Chat: ${s.chatPerMin}/min · Clips: ${s.clipsCaptured}", fontSize = 12.sp)
-                    Text("Transcript: ${s.transcriptTail}", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                    Text("Loudness: ${s.loudnessDb} dBFS · Chat: ${s.chatPerMin}/min · Clips: ${s.clipsCaptured}", style = MaterialTheme.typography.bodyMedium)
+                    Text("Transcript: ${s.transcriptTail}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Button(onClick = { onCaptureLive(s) }, modifier = Modifier.fillMaxWidth()) {
                         Text("Clip Last 45s Now")
                     }
@@ -781,13 +928,13 @@ fun WorkspacesScreen(workspaces: MutableList<CreatorWorkspace>) {
             }
         }
         items(workspaces, key = { it.id }) { ws ->
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF13161D))) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("${ws.name} (${ws.platform})", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    Text("Channel: ${ws.channelUrl}", fontSize = 11.sp, color = Color(0xFF94A3B8))
-                    Text("Style: ${ws.defaultStyle.label} · Spacing: ${ws.spacingHours}h · Daily Cap: ${ws.dailyCap}", fontSize = 11.sp)
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("${ws.name} (${ws.platform})", style = MaterialTheme.typography.titleMedium)
+                    Text("Channel: ${ws.channelUrl}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Style: ${ws.defaultStyle.label} · Spacing: ${ws.spacingHours}h · Daily Cap: ${ws.dailyCap}", style = MaterialTheme.typography.bodySmall)
                     ws.logs.forEach { log ->
-                        Text("• $log", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                        Text("• $log", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -799,9 +946,9 @@ fun WorkspacesScreen(workspaces: MutableList<CreatorWorkspace>) {
 fun PostQueueScreen(accounts: MutableList<SocialAccount>, queue: MutableList<QueuedPost>) {
     LazyColumn(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF13161D))) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("One-Click Connected Apps", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("One-Click Connected Apps", style = MaterialTheme.typography.titleMedium)
                     accounts.forEachIndexed { idx, acc ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -809,13 +956,13 @@ fun PostQueueScreen(accounts: MutableList<SocialAccount>, queue: MutableList<Que
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("${acc.platform} (${if (acc.connected) "Connected" else "Disconnected"})", fontWeight = FontWeight.Medium, fontSize = 12.sp)
-                                Text(acc.auditNote, fontSize = 10.sp, color = Color(0xFF94A3B8))
+                                Text("${acc.platform} (${if (acc.connected) "Connected" else "Disconnected"})", style = MaterialTheme.typography.titleSmall)
+                                Text(acc.auditNote, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             OutlinedButton(onClick = {
                                 accounts[idx] = acc.copy(connected = !acc.connected, handle = if (!acc.connected) "@creator_${acc.platform.lowercase()}" else "")
                             }) {
-                                Text(if (acc.connected) "Disconnect" else "Connect", fontSize = 11.sp)
+                                Text(if (acc.connected) "Disconnect" else "Connect", style = MaterialTheme.typography.labelMedium)
                             }
                         }
                     }
@@ -823,21 +970,21 @@ fun PostQueueScreen(accounts: MutableList<SocialAccount>, queue: MutableList<Que
             }
         }
         items(queue, key = { it.id }) { item ->
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF13161D))) {
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                 Row(
-                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                    modifier = Modifier.padding(14.dp).fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("${item.platform}: ${item.title}", fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
-                        Text("${item.status} · ${item.window}", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                        Text("${item.platform}: ${item.title}", style = MaterialTheme.typography.titleSmall)
+                        Text("${item.status} · ${item.window}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Button(onClick = {
                         val idx = queue.indexOf(item)
                         if (idx >= 0) queue[idx] = item.copy(status = "Posted")
                     }) {
-                        Text("Post Now", fontSize = 11.sp)
+                        Text("Post Now", style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
@@ -860,23 +1007,54 @@ fun SettingsAndUsageScreen(
     accountsEnabled: Boolean,
     onToggleAccounts: (Boolean) -> Unit,
     signedInEmail: String,
-    adminUsers: MutableList<AdminUser>
+    adminUsers: MutableList<AdminUser>,
+    useDynamicColor: Boolean,
+    onToggleDynamicColor: (Boolean) -> Unit,
+    accentPreset: AccentPreset,
+    onSelectAccent: (AccentPreset) -> Unit
 ) {
     val providers = listOf("gemini", "openai", "xai", "groq", "openrouter", "anthropic", "ollama", "custom", "none")
 
     LazyColumn(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF13161D))) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Choose Your AI (BYOK or Loudness-only)", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Material 3 Dynamic Color & Theme", style = MaterialTheme.typography.titleMedium)
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Android 12+ Material You Wallpaper Colors", style = MaterialTheme.typography.titleSmall)
+                            Text("Automatically adapts surfaces & accents on Android 12+", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Switch(checked = useDynamicColor, onCheckedChange = onToggleDynamicColor)
+                    }
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        AccentPreset.entries.forEach { preset ->
+                            FilterChip(
+                                selected = !useDynamicColor && accentPreset == preset,
+                                onClick = {
+                                    onToggleDynamicColor(false)
+                                    onSelectAccent(preset)
+                                },
+                                label = { Text(preset.name.lowercase().replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.labelSmall) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Choose Your AI (BYOK or Loudness-only)", style = MaterialTheme.typography.titleMedium)
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         providers.take(5).forEach { p ->
-                            FilterChip(selected = aiProvider == p, onClick = { onProviderChange(p) }, label = { Text(p, fontSize = 10.sp) })
+                            FilterChip(selected = aiProvider == p, onClick = { onProviderChange(p) }, label = { Text(p, style = MaterialTheme.typography.labelSmall) })
                         }
                     }
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         providers.drop(5).forEach { p ->
-                            FilterChip(selected = aiProvider == p, onClick = { onProviderChange(p) }, label = { Text(p, fontSize = 10.sp) })
+                            FilterChip(selected = aiProvider == p, onClick = { onProviderChange(p) }, label = { Text(p, style = MaterialTheme.typography.labelSmall) })
                         }
                     }
                     OutlinedTextField(
@@ -889,7 +1067,7 @@ fun SettingsAndUsageScreen(
                     if (availableModels.isNotEmpty()) {
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             availableModels.forEach { m ->
-                                AssistChip(onClick = { onModelsChange(m) }, label = { Text(m, fontSize = 10.sp) })
+                                AssistChip(onClick = { onModelsChange(m) }, label = { Text(m, style = MaterialTheme.typography.labelSmall) })
                             }
                         }
                     }
@@ -917,30 +1095,34 @@ fun SettingsAndUsageScreen(
         }
 
         item {
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF13161D))) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("AI Usage Per Video (Local Parakeet STT = \$0)", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("AI Usage Per Video (Local Parakeet STT = \$0)", style = MaterialTheme.typography.titleMedium)
                     usageRows.forEach { r ->
-                        Text("${r.source} · ${r.providerModel} · ${r.requests} reqs (${r.tokensIn} in / ${r.tokensOut} out)", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                        Text(
+                            "${r.source} · ${r.providerModel} · ${r.requests} reqs (${r.tokensIn} in / ${r.tokensOut} out)",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
         }
 
         item {
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF13161D))) {
-                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text("Multi-User Accounts (PEAKCUT_ACCOUNTS=1)", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                        Text("Multi-User Accounts (PEAKCUT_ACCOUNTS=1)", style = MaterialTheme.typography.titleSmall)
                         Switch(checked = accountsEnabled, onCheckedChange = onToggleAccounts)
                     }
                     if (accountsEnabled) {
-                        Text("Signed in: $signedInEmail · Admin Dashboard (/admin)", fontSize = 11.sp, color = Color(0xFF86EFAC))
+                        Text("Signed in: $signedInEmail · Admin Dashboard (/admin)", style = MaterialTheme.typography.bodySmall, color = Color(0xFF86EFAC))
                         adminUsers.forEachIndexed { idx, u ->
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                Text("${u.email} (${if (u.isAdmin) "admin" else "user"})", fontSize = 12.sp)
+                                Text("${u.email} (${if (u.isAdmin) "admin" else "user"})", style = MaterialTheme.typography.bodyMedium)
                                 OutlinedButton(onClick = { adminUsers[idx] = u.copy(isAdmin = !u.isAdmin) }) {
-                                    Text(if (u.isAdmin) "Revoke" else "Grant", fontSize = 11.sp)
+                                    Text(if (u.isAdmin) "Revoke" else "Grant", style = MaterialTheme.typography.labelMedium)
                                 }
                             }
                         }

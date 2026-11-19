@@ -14,11 +14,13 @@
       --bg: #0c0e12;
       --surface: #13161d;
       --surface-2: #191d26;
+      --surface-3: #202532;
       --border: #252a36;
       --text: #f1f5f9;
       --muted: #94a3b8;
       --accent: #f97316;
       --accent-hover: #ea580c;
+      --accent-soft: rgba(249, 115, 22, 0.14);
       --green: #22c55e;
       --red: #ef4444;
       --blue: #3b82f6;
@@ -34,15 +36,20 @@
     .font-anton { font-family: 'Anton', Impact, sans-serif; letter-spacing: 0.03em; }
     .font-archivo { font-family: 'Archivo Black', sans-serif; }
     .font-poppins { font-family: 'Poppins', sans-serif; }
+    .m3-title-md { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+    .m3-title-sm { font-size: 13px; font-weight: 600; }
+    .m3-label { font-size: 11px; font-weight: 500; color: var(--muted); }
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 12px;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
     }
     .panel-2 {
       background: var(--surface-2);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 8px;
+      transition: border-color 0.18s ease, background-color 0.18s ease;
     }
     .btn {
       display: inline-flex;
@@ -50,16 +57,17 @@
       justify-content: center;
       gap: 6px;
       padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 13px;
+      border-radius: 999px;
+      font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
       border: 1px solid var(--border);
       background: var(--surface-2);
       color: var(--text);
-      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
     }
-    .btn:hover { background: #222734; border-color: #353c4d; }
+    .btn:hover { background: var(--surface-3); border-color: #353c4d; }
+    .btn:active { transform: scale(0.98); }
     .btn-primary {
       background: var(--accent);
       border-color: var(--accent);
@@ -76,7 +84,7 @@
       width: 100%;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 8px 12px;
       font-size: 13px;
       color: var(--text);
@@ -88,21 +96,21 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px;
-      border-radius: 6px;
+      padding: 7px 13px;
+      border-radius: 999px;
       font-size: 13px;
       font-weight: 500;
       color: var(--muted);
       cursor: pointer;
       border: 1px solid transparent;
       background: transparent;
-      transition: background-color 0.15s ease, color 0.15s ease;
+      transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
       white-space: nowrap;
     }
     .nav-btn:hover { background: var(--surface-2); color: var(--text); }
     .nav-btn.active {
-      background: var(--surface-2);
-      border-color: var(--border);
+      background: var(--accent-soft);
+      border-color: var(--accent);
       color: var(--text);
       font-weight: 600;
     }
@@ -110,7 +118,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 2px 8px;
+      padding: 2px 9px;
       border-radius: 999px;
       font-size: 11px;
       font-weight: 600;
@@ -119,27 +127,32 @@
       color: var(--muted);
     }
     .tag-green { background: #0f291a; border-color: #1c4b30; color: #86efac; }
-    .tag-orange { background: #2d180a; border-color: #5c3114; color: #fdba74; }
+    .tag-orange { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
     .tag-blue { background: #10203a; border-color: #1e3a6b; color: #93c5fd; }
     .tag-red { background: #2c1215; border-color: #592026; color: #fca5a5; }
+    @keyframes m3ViewEnter {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .view-enter { animation: m3ViewEnter 0.2s cubic-bezier(0.2, 0, 0, 1); }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     .phone-frame {
       aspect-ratio: 9 / 16;
-      max-height: 460px;
+      max-height: 440px;
       width: auto;
       margin: 0 auto;
       background: #050608;
       border: 2px solid #2b3140;
-      border-radius: 16px;
+      border-radius: 18px;
       overflow: hidden;
       position: relative;
+      transition: aspect-ratio 0.25s ease;
     }
-    /* Android Device Frame Mode */
-    body.android-mode {
-      background: #07080b;
-    }
+    .phone-frame.aspect-4-5 { aspect-ratio: 4 / 5; max-height: 390px; }
+    .phone-frame.aspect-1-1 { aspect-ratio: 1 / 1; max-height: 350px; }
+    body.android-mode { background: #07080b; }
     body.android-mode #app {
       max-width: 412px;
       margin: 12px auto;
@@ -149,23 +162,28 @@
       overflow: hidden;
       background: var(--bg);
     }
-    body.android-mode #androidStatusBar {
-      display: flex !important;
+    body.android-mode #androidStatusBar { display: flex !important; }
+    body.android-mode #androidBottomNav { display: grid !important; }
+    body.android-mode #mainNav { display: none !important; }
+    .android-nav-pill {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 999px;
+      transition: background-color 0.18s ease, color 0.18s ease;
     }
-    body.android-mode #androidBottomNav {
-      display: grid !important;
-    }
-    body.android-mode #mainNav {
-      display: none !important;
+    .android-nav-item.is-active .android-nav-pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
   <div id="app" class="min-h-screen flex flex-col">
-    <!-- Android Status Bar (Visible in Android Mode) -->
+    <!-- Android Status Bar -->
     <div id="androidStatusBar" class="hidden items-center justify-between px-5 py-1.5 bg-[#0c0e12] text-[11px] text-[#94a3b8] border-b border-[#1c202b]">
-      <span class="font-semibold text-white">20:54</span>
-      <span class="text-[10px] font-mono text-[#f97316]">Android 14 · Material 3</span>
+      <span class="font-semibold text-white">22:24</span>
+      <span class="text-[10px] font-mono" style="color: var(--accent)">Android 14 · Material You</span>
       <span>5G · 94%</span>
     </div>
 
@@ -173,11 +191,11 @@
     <header class="border-b border-[#252a36] bg-[#13161d] sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-md bg-[#f97316] flex items-center justify-center text-[#0c0e12] font-bold text-sm">PC</div>
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center text-[#0c0e12] font-bold text-sm" style="background: var(--accent)">PC</div>
           <div>
             <div class="flex items-center gap-2">
               <span class="font-bold text-base tracking-tight">PeakCut</span>
-              <button id="updateBadgeBtn" class="tag tag-orange cursor-pointer hover:bg-[#3f210d]" title="Check update">Update available</button>
+              <button id="updateBadgeBtn" class="tag tag-orange cursor-pointer" title="Check update">v1.1 · M3</button>
             </div>
             <p class="text-[11px] text-[#94a3b8] leading-none mt-0.5">Self-hosted AI video &amp; live stream clipper</p>
           </div>
@@ -194,7 +212,8 @@
         </nav>
 
         <div class="flex items-center gap-2">
-          <button id="toggleAndroidModeBtn" class="btn text-xs py-1.5 px-2.5 border-[#f97316] text-[#fdba74]" title="Switch between Desktop Web & Android M3 Phone UI">Android App View</button>
+          <button id="stressTestReportBtn" class="btn text-xs py-1.5 px-2.5" title="View FFmpeg Stress Test Results">Stress Tests</button>
+          <button id="toggleAndroidModeBtn" class="btn text-xs py-1.5 px-2.5" style="border-color: var(--accent)" title="Switch between Desktop Web & Android M3 Phone UI">Android App View</button>
           <div id="authStatusPill" class="tag cursor-pointer" title="Account mode">Local Owner</div>
           <button id="signInTriggerBtn" class="btn text-xs py-1.5 px-2.5 hidden">Sign in</button>
         </div>
@@ -204,12 +223,11 @@
     <!-- Main Content -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-5">
       <!-- VIEW: DASHBOARD -->
-      <section id="view-dashboard" class="space-y-5">
-        <!-- New Clip Input + Quick Settings -->
+      <section id="view-dashboard" class="space-y-5 view-enter">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div class="panel p-4 lg:col-span-2 space-y-3">
             <div class="flex items-center justify-between gap-2 flex-wrap">
-              <h1 class="text-sm font-semibold">Clip a Video or Stream VOD</h1>
+              <h1 class="m3-title-md">Clip a Video or Stream VOD</h1>
               <span id="aiModeBadge" class="tag tag-green">AI: Gemini (gemini-2.5-flash)</span>
             </div>
 
@@ -218,19 +236,19 @@
               <button id="addUrlJobBtn" class="btn btn-primary whitespace-nowrap">Find &amp; Clip</button>
             </div>
 
-            <div id="dropZone" class="border border-dashed border-[#353c4d] rounded-md p-4 text-center bg-[#0c0e12] cursor-pointer hover:border-[#f97316] transition-colors">
+            <div id="dropZone" class="border border-dashed border-[#353c4d] rounded-lg p-4 text-center bg-[#0c0e12] cursor-pointer transition-colors">
               <input id="fileUploadInput" type="file" accept="video/*" multiple class="hidden" />
-              <p class="text-xs text-[#cbd5e1] font-medium">Drop up to 5 video files here, or <span class="text-[#f97316] underline">browse files</span></p>
-              <p class="text-[11px] text-[#94a3b8] mt-1">Uploaded videos play directly in the 9:16 previewer. Chunked upload &amp; local Parakeet speech-to-text pipeline.</p>
+              <p class="text-xs text-[#cbd5e1] font-medium">Drop up to 5 video files here, or <span class="underline" style="color: var(--accent)">browse files</span></p>
+              <p class="text-[11px] text-[#94a3b8] mt-1">Uploaded videos play directly in the frame-accurate trimmer &amp; previewer (supports 16:9, 21:9, 4:3, 1:1, 9:16).</p>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
               <div>
-                <label class="block text-[11px] text-[#94a3b8] mb-1">Workspace</label>
+                <label class="block m3-label mb-1">Workspace</label>
                 <select id="jobWorkspaceSelect" class="input text-xs py-1.5"></select>
               </div>
               <div>
-                <label class="block text-[11px] text-[#94a3b8] mb-1">Caption Style</label>
+                <label class="block m3-label mb-1">Caption Style</label>
                 <select id="jobCaptionStyleSelect" class="input text-xs py-1.5">
                   <option value="anton">Style 1: Anton Bold Pop</option>
                   <option value="archivo">Style 2: Archivo Box</option>
@@ -238,7 +256,7 @@
                 </select>
               </div>
               <div>
-                <label class="block text-[11px] text-[#94a3b8] mb-1">Clip Length</label>
+                <label class="block m3-label mb-1">Clip Length</label>
                 <select id="jobDurationSelect" class="input text-xs py-1.5">
                   <option value="30">15–35 sec (Shorts)</option>
                   <option value="45" selected>30–60 sec (Viral)</option>
@@ -258,7 +276,7 @@
           <div class="panel p-4 flex flex-col justify-between space-y-3">
             <div>
               <div class="flex items-center justify-between">
-                <h2 class="text-sm font-semibold">Processing Queue</h2>
+                <h2 class="m3-title-md">Processing Queue</h2>
                 <span id="queueStateTag" class="tag tag-green">Idle / Ready</span>
               </div>
               <div id="activeJobsList" class="mt-3 space-y-2 max-h-40 overflow-y-auto"></div>
@@ -270,37 +288,41 @@
               </div>
               <div class="flex items-center justify-between gap-2">
                 <span id="diskWarningText" class="text-[11px] text-[#94a3b8]">Storage healthy (124 GB free)</span>
-                <button id="openDataFolderBtn" class="btn text-[11px] py-1 px-2">Data Folder</button>
+                <button id="openDataFolderBtn" class="btn text-[11px] py-1 px-2.5">Data Folder</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Finished Clips + 9:16 Interactive Studio Previewer -->
+        <!-- Finished Clips + Interactive Studio Previewer -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          <!-- Clips List -->
           <div class="panel p-4 lg:col-span-7 space-y-3">
             <div class="flex items-center justify-between gap-2 flex-wrap">
               <div class="flex items-center gap-2">
-                <h2 class="text-sm font-semibold">Generated Clips</h2>
+                <h2 class="m3-title-md">Generated Clips</h2>
                 <span id="clipsCountBadge" class="tag">0 clips</span>
               </div>
               <div class="flex items-center gap-2">
                 <select id="clipFilterWorkspace" class="input text-xs py-1 px-2 w-auto">
                   <option value="all">All Workspaces</option>
                 </select>
-                <button id="simulateDemoJobBtn" class="btn text-xs py-1 px-2.5">+ Demo Clip</button>
+                <button id="simulateDemoJobBtn" class="btn text-xs py-1 px-3">+ Demo Clip</button>
               </div>
             </div>
-            <div id="clipsGrid" class="space-y-2.5 max-h-[560px] overflow-y-auto pr-1"></div>
+            <div id="clipsGrid" class="space-y-2.5 max-h-[600px] overflow-y-auto pr-1"></div>
           </div>
 
-          <!-- 9:16 Vertical Preview & Caption Editor -->
+          <!-- Vertical Preview, Frame-Accurate Trimmer & Caption Editor -->
           <div class="panel p-4 lg:col-span-5 space-y-3">
-            <div class="flex items-center justify-between">
-              <h2 class="text-sm font-semibold">9:16 Clip Preview &amp; Editor</h2>
+            <div class="flex items-center justify-between gap-1 flex-wrap">
+              <h2 class="m3-title-md">Preview &amp; Trimmer</h2>
               <div class="flex items-center gap-1.5">
-                <button id="prevStyleCycleBtn" class="btn text-xs py-1 px-2">Switch Style</button>
+                <select id="aspectRatioSelect" class="input text-xs py-1 px-2 w-auto">
+                  <option value="9:16">9:16 Vertical</option>
+                  <option value="4:5">4:5 Feed</option>
+                  <option value="1:1">1:1 Square</option>
+                </select>
+                <button id="prevStyleCycleBtn" class="btn text-xs py-1 px-2.5">Style</button>
                 <button id="downloadClipBtn" class="btn btn-primary text-xs py-1 px-2.5">Export</button>
               </div>
             </div>
@@ -309,36 +331,47 @@
               <video id="previewVideo" class="hidden absolute inset-0 w-full h-full object-cover" playsinline muted loop></video>
               <canvas id="previewCanvas" class="absolute inset-0 w-full h-full object-cover"></canvas>
 
-              <!-- Top Hook Overlay -->
-              <div id="previewHookBox" class="relative z-10 mt-4 mx-auto max-w-[90%] text-center px-3 py-1.5 rounded bg-black/75 border border-white/20">
+              <div id="previewHookBox" class="relative z-10 mt-4 mx-auto max-w-[90%] text-center px-3 py-1.5 rounded-lg bg-black/75 border border-white/20">
                 <p id="previewHookText" class="text-xs font-bold text-white leading-tight"></p>
               </div>
 
-              <!-- Word-by-word Caption Overlay -->
-              <div class="relative z-10 mb-8 px-2 text-center">
-                <div id="previewCaptionBox" class="inline-block px-3 py-1.5 rounded transition-all"></div>
+              <div class="relative z-10 mb-7 px-2 text-center">
+                <div id="previewCaptionBox" class="inline-block px-3 py-1.5 rounded-lg transition-all"></div>
               </div>
             </div>
 
-            <!-- Playback & Trim Controls -->
-            <div class="space-y-2">
-              <div class="flex items-center gap-2">
+            <!-- Frame-accurate Playback & Trim Controls -->
+            <div class="space-y-2.5">
+              <div class="flex items-center gap-1.5">
                 <button id="playPausePreviewBtn" class="btn text-xs py-1 px-3">Play</button>
-                <input id="previewScrubber" type="range" min="0" max="100" value="0" class="flex-1 accent-[#f97316]" />
-                <span id="previewTimecode" class="text-[11px] font-mono text-[#94a3b8]">00:00 / 00:38</span>
+                <button id="stepBackFrameBtn" class="btn text-[11px] py-1 px-2" title="Step back 1 frame (30fps)">-1f</button>
+                <button id="stepFwdFrameBtn" class="btn text-[11px] py-1 px-2" title="Step forward 1 frame (30fps)">+1f</button>
+                <input id="previewScrubber" type="range" min="0" max="1000" value="0" class="flex-1 accent-[#f97316]" />
+                <span id="previewTimecode" class="text-[11px] font-mono text-[#94a3b8]">00:00.00</span>
               </div>
 
-              <div class="grid grid-cols-1 gap-2 pt-1">
+              <div class="grid grid-cols-2 gap-2 panel-2 p-2.5">
                 <div>
-                  <label class="block text-[11px] text-[#94a3b8] mb-1">Clip Title (AI-generated, editable)</label>
+                  <label class="block text-[10px] text-[#94a3b8] mb-1">Trim In (sec)</label>
+                  <input id="trimStartInput" type="number" step="0.1" min="0" class="input text-xs py-1" value="0" />
+                </div>
+                <div>
+                  <label class="block text-[10px] text-[#94a3b8] mb-1">Trim Out (sec)</label>
+                  <input id="trimEndInput" type="number" step="0.1" min="1" class="input text-xs py-1" value="34" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-2">
+                <div>
+                  <label class="block m3-label mb-1">Clip Title (AI-generated, editable)</label>
                   <input id="editClipTitle" type="text" class="input text-xs py-1.5" />
                 </div>
                 <div>
-                  <label class="block text-[11px] text-[#94a3b8] mb-1">Hook Overlay Text</label>
+                  <label class="block m3-label mb-1">Hook Overlay Text</label>
                   <input id="editClipHook" type="text" class="input text-xs py-1.5" />
                 </div>
                 <div>
-                  <label class="block text-[11px] text-[#94a3b8] mb-1">Caption Transcript (word-by-word fix)</label>
+                  <label class="block m3-label mb-1">Caption Transcript (word-by-word fix)</label>
                   <textarea id="editClipTranscript" rows="2" class="input text-xs py-1.5"></textarea>
                 </div>
                 <div class="flex items-center justify-between gap-2 pt-1">
@@ -352,11 +385,11 @@
       </section>
 
       <!-- VIEW: LIVE CLIPPING -->
-      <section id="view-live" class="hidden space-y-4">
+      <section id="view-live" class="hidden space-y-4 view-enter">
         <div class="panel p-4 space-y-3">
           <div class="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <h1 class="text-sm font-semibold">Live Stream Rolling Buffer &amp; Auto-Clipping</h1>
+              <h1 class="m3-title-md">Live Stream Rolling Buffer &amp; Auto-Clipping</h1>
               <p class="text-xs text-[#94a3b8]">Records a Twitch, Kick, or YouTube live stream and clips highlights in real time using loudness, chat activity, and live transcript.</p>
             </div>
             <span id="liveSlotBadge" class="tag tag-green">0 / 2 Active Streams</span>
@@ -373,10 +406,10 @@
       </section>
 
       <!-- VIEW: WORKSPACES -->
-      <section id="view-workspaces" class="hidden space-y-4">
+      <section id="view-workspaces" class="hidden space-y-4 view-enter">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div>
-            <h1 class="text-sm font-semibold">Creator Workspaces</h1>
+            <h1 class="m3-title-md">Creator Workspaces</h1>
             <p class="text-xs text-[#94a3b8]">Channels, clip settings, posting rules, and activity log per creator.</p>
           </div>
           <button id="newWorkspaceBtn" class="btn btn-primary">+ New Workspace</button>
@@ -389,10 +422,10 @@
       </section>
 
       <!-- VIEW: POST QUEUE -->
-      <section id="view-posting" class="hidden space-y-4">
+      <section id="view-posting" class="hidden space-y-4 view-enter">
         <div class="panel p-4 flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 class="text-sm font-semibold">Social Posting Queue &amp; Rules</h1>
+            <h1 class="m3-title-md">Social Posting Queue &amp; Rules</h1>
             <p class="text-xs text-[#94a3b8]">Clips respect per-workspace spacing and daily caps across YouTube, Instagram, and TikTok.</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap" id="connectedAppsSummary"></div>
@@ -401,28 +434,28 @@
       </section>
 
       <!-- VIEW: AI USAGE -->
-      <section id="view-usage" class="hidden space-y-4">
+      <section id="view-usage" class="hidden space-y-4 view-enter">
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div class="panel p-3.5">
-            <p class="text-[11px] text-[#94a3b8]">Total AI Requests</p>
+            <p class="m3-label">Total AI Requests</p>
             <p id="usageTotalReqs" class="text-xl font-bold mt-1">0</p>
           </div>
           <div class="panel p-3.5">
-            <p class="text-[11px] text-[#94a3b8]">Input Tokens</p>
+            <p class="m3-label">Input Tokens</p>
             <p id="usageInputTokens" class="text-xl font-bold mt-1">0</p>
           </div>
           <div class="panel p-3.5">
-            <p class="text-[11px] text-[#94a3b8]">Output Tokens</p>
+            <p class="m3-label">Output Tokens</p>
             <p id="usageOutputTokens" class="text-xl font-bold mt-1">0</p>
           </div>
           <div class="panel p-3.5">
-            <p class="text-[11px] text-[#94a3b8]">Speech-to-Text (Local)</p>
+            <p class="m3-label">Speech-to-Text (Local)</p>
             <p class="text-xl font-bold mt-1 text-[#86efac]">$0.00</p>
           </div>
         </div>
 
         <div class="panel p-4">
-          <h2 class="text-sm font-semibold mb-3">Token Usage by Video / Session</h2>
+          <h2 class="m3-title-md mb-3">Token Usage by Video / Session</h2>
           <div class="relative h-64">
             <canvas id="usageChart"></canvas>
           </div>
@@ -446,9 +479,10 @@
       </section>
 
       <!-- VIEW: SETTINGS -->
-      <section id="view-settings" class="hidden space-y-4">
-        <div class="flex items-center gap-2 border-b border-[#252a36] pb-2">
+      <section id="view-settings" class="hidden space-y-4 view-enter">
+        <div class="flex items-center gap-2 border-b border-[#252a36] pb-2 flex-wrap">
           <button class="nav-btn active settings-tab-btn" data-stab="ai">AI Provider</button>
+          <button class="nav-btn settings-tab-btn" data-stab="theme">Material 3 Theme</button>
           <button class="nav-btn settings-tab-btn" data-stab="apps">Connected Apps</button>
           <button class="nav-btn settings-tab-btn" data-stab="account">Accounts &amp; Server</button>
         </div>
@@ -456,7 +490,7 @@
         <!-- Settings: AI -->
         <div id="stab-ai" class="panel p-4 space-y-4 max-w-3xl">
           <div>
-            <h2 class="text-sm font-semibold">Choose Your AI</h2>
+            <h2 class="m3-title-md">Choose Your AI</h2>
             <p class="text-xs text-[#94a3b8] mt-0.5">PeakCut uses your own AI key for picking moments, writing hooks, and fixing captions. Leave key empty to use loudness-only clipping.</p>
           </div>
 
@@ -486,7 +520,7 @@
             <div class="sm:col-span-2">
               <div class="flex items-center justify-between mb-1">
                 <label class="text-xs text-[#94a3b8]">Models (comma-separated fallback order)</label>
-                <button id="findModelsBtn" class="btn text-[11px] py-1 px-2">Find models</button>
+                <button id="findModelsBtn" class="btn text-[11px] py-1 px-2.5">Find models</button>
               </div>
               <input id="aiModelsInput" type="text" class="input" placeholder="gemini-2.5-flash, gemini-2.5-pro" />
               <div id="foundModelsChips" class="flex flex-wrap gap-1.5 mt-2"></div>
@@ -499,6 +533,36 @@
           </div>
         </div>
 
+        <!-- Settings: Material 3 Dynamic Color Theme -->
+        <div id="stab-theme" class="hidden panel p-4 space-y-4 max-w-3xl">
+          <div>
+            <h2 class="m3-title-md">Material 3 Dynamic Color &amp; Palette</h2>
+            <p class="text-xs text-[#94a3b8] mt-0.5">Matches the Android 12+ Material You dynamic color presets across both Desktop Web and Android App View.</p>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="themeSwatches">
+            <button class="panel-2 p-3 text-left cursor-pointer theme-swatch-btn" data-theme-id="amber">
+              <span class="inline-block w-4 h-4 rounded-full bg-[#f97316] mb-1.5"></span>
+              <p class="text-xs font-semibold">PeakCut Amber</p>
+              <p class="text-[10px] text-[#94a3b8]">Default Studio</p>
+            </button>
+            <button class="panel-2 p-3 text-left cursor-pointer theme-swatch-btn" data-theme-id="indigo">
+              <span class="inline-block w-4 h-4 rounded-full bg-[#818cf8] mb-1.5"></span>
+              <p class="text-xs font-semibold">Material Indigo</p>
+              <p class="text-[10px] text-[#94a3b8]">Android M3</p>
+            </button>
+            <button class="panel-2 p-3 text-left cursor-pointer theme-swatch-btn" data-theme-id="emerald">
+              <span class="inline-block w-4 h-4 rounded-full bg-[#34d399] mb-1.5"></span>
+              <p class="text-xs font-semibold">Studio Emerald</p>
+              <p class="text-[10px] text-[#94a3b8]">High Contrast</p>
+            </button>
+            <button class="panel-2 p-3 text-left cursor-pointer theme-swatch-btn" data-theme-id="rose">
+              <span class="inline-block w-4 h-4 rounded-full bg-[#fb7185] mb-1.5"></span>
+              <p class="text-xs font-semibold">Creator Rose</p>
+              <p class="text-[10px] text-[#94a3b8]">Editorial</p>
+            </button>
+          </div>
+        </div>
+
         <!-- Settings: Connected Apps -->
         <div id="stab-apps" class="hidden space-y-3 max-w-3xl">
           <div class="panel p-4 space-y-3" id="connectedAppsCards"></div>
@@ -508,7 +572,7 @@
         <div id="stab-account" class="hidden panel p-4 space-y-4 max-w-3xl">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-sm font-semibold">Accounts Mode (PEAKCUT_ACCOUNTS)</h2>
+              <h2 class="m3-title-md">Accounts Mode (PEAKCUT_ACCOUNTS)</h2>
               <p class="text-xs text-[#94a3b8]">Off on your own computer (direct dashboard). Turn on for shared servers with email/Google sign-in and /admin.</p>
             </div>
             <label class="flex items-center gap-2 cursor-pointer">
@@ -530,25 +594,25 @@
       </section>
 
       <!-- VIEW: ADMIN -->
-      <section id="view-admin" class="hidden space-y-4">
+      <section id="view-admin" class="hidden space-y-4 view-enter">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="panel p-3.5">
-            <p class="text-[11px] text-[#94a3b8]">CPU Load</p>
+            <p class="m3-label">CPU Load</p>
             <p id="adminCpu" class="text-xl font-bold mt-1">24%</p>
           </div>
           <div class="panel p-3.5">
-            <p class="text-[11px] text-[#94a3b8]">Memory Usage</p>
+            <p class="m3-label">Memory Usage</p>
             <p id="adminRam" class="text-xl font-bold mt-1">41%</p>
           </div>
           <div class="panel p-3.5">
-            <p class="text-[11px] text-[#94a3b8]">Disk Usage (./data)</p>
+            <p class="m3-label">Disk Usage (./data)</p>
             <p id="adminDisk" class="text-xl font-bold mt-1">38%</p>
           </div>
         </div>
 
         <div class="panel p-4 space-y-3">
           <div class="flex items-center justify-between">
-            <h2 class="text-sm font-semibold">Users &amp; Roles (studio.admin)</h2>
+            <h2 class="m3-title-md">Users &amp; Roles (studio.admin)</h2>
             <span class="tag">Only CLI or Admin can grant/revoke</span>
           </div>
           <div id="adminUsersList" class="space-y-2"></div>
@@ -556,31 +620,38 @@
       </section>
     </main>
 
-    <!-- Android Material 3 Bottom Navigation Bar (Visible in Android Mode) -->
-    <nav id="androidBottomNav" class="hidden grid-cols-5 border-t border-[#252a36] bg-[#13161d] py-1.5 px-1 sticky bottom-0 z-30 text-center">
-      <button class="android-nav-item py-1 text-[11px] font-semibold text-[#f97316]" data-view="dashboard">Studio</button>
-      <button class="android-nav-item py-1 text-[11px] text-[#94a3b8]" data-view="live">Live</button>
-      <button class="android-nav-item py-1 text-[11px] text-[#94a3b8]" data-view="workspaces">Creators</button>
-      <button class="android-nav-item py-1 text-[11px] text-[#94a3b8]" data-view="posting">Post</button>
-      <button class="android-nav-item py-1 text-[11px] text-[#94a3b8]" data-view="settings">Settings</button>
+    <!-- Android Material 3 Bottom Navigation Bar -->
+    <nav id="androidBottomNav" class="hidden grid-cols-5 border-t border-[#252a36] bg-[#13161d] py-2 px-1 sticky bottom-0 z-30 text-center">
+      <button class="android-nav-item is-active text-[11px] text-[#94a3b8]" data-view="dashboard"><span class="android-nav-pill">Studio</span></button>
+      <button class="android-nav-item text-[11px] text-[#94a3b8]" data-view="live"><span class="android-nav-pill">Live</span></button>
+      <button class="android-nav-item text-[11px] text-[#94a3b8]" data-view="workspaces"><span class="android-nav-pill">Creators</span></button>
+      <button class="android-nav-item text-[11px] text-[#94a3b8]" data-view="posting"><span class="android-nav-pill">Post</span></button>
+      <button class="android-nav-item text-[11px] text-[#94a3b8]" data-view="settings"><span class="android-nav-pill">Settings</span></button>
     </nav>
   </div>
 
   <!-- In-Page Modal -->
   <div id="modalBackdrop" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-    <div class="panel max-w-md w-full p-5 space-y-4">
+    <div class="panel max-w-lg w-full p-5 space-y-4 view-enter">
       <div class="flex items-center justify-between">
-        <h3 id="modalTitle" class="text-sm font-semibold"></h3>
-        <button id="modalCloseBtn" class="btn text-xs py-1 px-2">Close</button>
+        <h3 id="modalTitle" class="m3-title-md"></h3>
+        <button id="modalCloseBtn" class="btn text-xs py-1 px-2.5">Close</button>
       </div>
       <div id="modalBody" class="text-xs text-[#cbd5e1] space-y-3"></div>
     </div>
   </div>
 
   <!-- Toast -->
-  <div id="toast" class="hidden fixed bottom-4 right-4 z-50 panel px-3.5 py-2.5 text-xs font-medium border-[#f97316]"></div>
+  <div id="toast" class="hidden fixed bottom-4 right-4 z-50 panel px-3.5 py-2.5 text-xs font-medium" style="border-color: var(--accent)"></div>
 
   <script>
+    const M3_THEMES = {
+      amber: { accent: '#f97316', hover: '#ea580c', soft: 'rgba(249, 115, 22, 0.15)' },
+      indigo: { accent: '#818cf8', hover: '#6366f1', soft: 'rgba(129, 140, 248, 0.16)' },
+      emerald: { accent: '#34d399', hover: '#10b981', soft: 'rgba(52, 211, 153, 0.15)' },
+      rose: { accent: '#fb7185', hover: '#f43f5e', soft: 'rgba(251, 113, 133, 0.15)' }
+    };
+
     const PROVIDER_MODELS = {
       gemini: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash'],
       openai: ['gpt-4.1-mini', 'gpt-4o-mini', 'gpt-4.1'],
@@ -596,89 +667,46 @@
     const DEFAULT_STATE = {
       activeView: 'dashboard',
       settingsTab: 'ai',
+      themeId: 'amber',
       androidMode: false,
       accountsEnabled: false,
       signedInUser: { email: 'owner@localhost', role: 'admin' },
-      ai: {
-        provider: 'gemini',
-        models: 'gemini-2.5-flash',
-        key: '',
-        baseUrl: '',
-        tested: true
-      },
+      ai: { provider: 'gemini', models: 'gemini-2.5-flash', key: '', baseUrl: '', tested: true },
       workspaces: [
         {
-          id: 'ws-1',
-          name: 'Tech & AI Podcast',
-          channel: 'https://youtube.com/@techpodcast',
-          platform: 'YouTube',
-          captionStyle: 'anton',
-          hookEnabled: true,
-          targetDuration: 45,
-          autoPost: true,
-          spacingHours: 4,
-          dailyCap: 3,
-          logs: [
-            'Rendered 3 clips from "Why Local AI Models Won"',
-            'Auto-posted Clip #1 to YouTube Shorts'
-          ]
+          id: 'ws-1', name: 'Tech & AI Podcast', channel: 'https://youtube.com/@techpodcast',
+          platform: 'YouTube', captionStyle: 'anton', hookEnabled: true, targetDuration: 45,
+          autoPost: true, spacingHours: 4, dailyCap: 3,
+          logs: ['Rendered 3 clips from "Why Local AI Models Won"', 'Auto-posted Clip #1 to YouTube Shorts']
         },
         {
-          id: 'ws-2',
-          name: 'Nightly Gaming Stream',
-          platform: 'Twitch',
-          channel: 'https://twitch.tv/nightgamer',
-          captionStyle: 'archivo',
-          hookEnabled: true,
-          targetDuration: 30,
-          autoPost: false,
-          spacingHours: 2,
-          dailyCap: 5,
-          logs: [
-            'Live session recorded 42m rolling buffer',
-            'Clipped clutch moment via loudness + chat spike'
-          ]
+          id: 'ws-2', name: 'Nightly Gaming Stream', platform: 'Twitch', channel: 'https://twitch.tv/nightgamer',
+          captionStyle: 'archivo', hookEnabled: true, targetDuration: 30, autoPost: false,
+          spacingHours: 2, dailyCap: 5,
+          logs: ['Live session recorded 42m rolling buffer', 'Clipped clutch moment via loudness + chat spike']
         }
       ],
       selectedWorkspaceId: 'ws-1',
       jobs: [],
       clips: [
         {
-          id: 'clip-101',
-          workspaceId: 'ws-1',
-          title: 'Why Self-Hosted AI Beats Subscriptions',
-          hook: 'STOP paying $30/mo for basic video clips',
-          sourceTitle: 'Building Open Source Tools in 2026',
-          duration: 34,
-          style: 'anton',
-          score: 94,
-          videoUrl: null,
+          id: 'clip-101', workspaceId: 'ws-1', title: 'Why Self-Hosted AI Beats Subscriptions',
+          hook: 'STOP paying $30/mo for basic video clips', sourceTitle: 'Building Open Source Tools in 2026',
+          duration: 34, trimStart: 0, trimEnd: 34, aspect: '9:16', style: 'anton', score: 94, videoUrl: null,
           transcript: 'You do not need a cloud subscription just to cut a podcast into vertical shorts. Run the speech model locally and bring your own API key.'
         },
         {
-          id: 'clip-102',
-          workspaceId: 'ws-2',
-          title: '1v4 Clutch at Final Circle',
-          hook: 'Chat went completely wild on this play',
-          sourceTitle: 'Twitch VOD - Ranked Marathon',
-          duration: 26,
-          style: 'archivo',
-          score: 91,
-          videoUrl: null,
+          id: 'clip-102', workspaceId: 'ws-2', title: '1v4 Clutch at Final Circle',
+          hook: 'Chat went completely wild on this play', sourceTitle: 'Twitch VOD - Ranked Marathon',
+          duration: 26, trimStart: 2, trimEnd: 24, aspect: '9:16', style: 'archivo', score: 91, videoUrl: null,
           transcript: 'Wait watch the smoke on the left side. No way he hits that flick shot with two bullets left!'
         }
       ],
       selectedClipId: 'clip-101',
       liveSessions: [
         {
-          id: 'live-1',
-          url: 'https://twitch.tv/nightgamer',
-          workspaceId: 'ws-2',
-          status: 'Recording',
-          uptimeSec: 1842,
-          loudnessDb: -14,
-          chatPerMin: 48,
-          clipsCaptured: 2,
+          id: 'live-1', url: 'https://twitch.tv/nightgamer', workspaceId: 'ws-2', status: 'Recording',
+          uptimeSec: 1842, loudnessDb: -14, chatPerMin: 48, clipsCaptured: 2,
           transcriptTail: 'Okay chat, if we win this round I am giving away...'
         }
       ],
@@ -688,15 +716,7 @@
         tiktok: { connected: false, account: '', note: 'Direct Post API (private until audited)', redirect: 'https://your-domain/oauth/tiktok/callback' }
       },
       postQueue: [
-        {
-          id: 'post-1',
-          clipId: 'clip-101',
-          title: 'Why Self-Hosted AI Beats Subscriptions #shorts',
-          platform: 'YouTube',
-          workspaceId: 'ws-1',
-          status: 'Scheduled (in 4h)',
-          scheduledFor: 'Today, 23:00'
-        }
+        { id: 'post-1', clipId: 'clip-101', title: 'Why Self-Hosted AI Beats Subscriptions #shorts', platform: 'YouTube', workspaceId: 'ws-1', status: 'Scheduled (in 4h)', scheduledFor: 'Today, 23:00' }
       ],
       usageRecords: [
         { source: 'Building Open Source Tools in 2026', provider: 'gemini / gemini-2.5-flash', requests: 4, tokensIn: 18420, tokensOut: 1420, clips: 4 },
@@ -713,11 +733,12 @@
     let previewPlaying = false;
     let previewTime = 0;
     let previewTimer = null;
+    let scrubRafPending = false;
     let usageChartInstance = null;
 
     function loadState() {
       try {
-        const raw = localStorage.getItem('peakcut_app_state_v1');
+        const raw = localStorage.getItem('peakcut_app_state_v2');
         if (raw) return { ...DEFAULT_STATE, ...JSON.parse(raw) };
       } catch (e) {}
       return JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -727,8 +748,18 @@
       try {
         const clone = JSON.parse(JSON.stringify(state));
         clone.clips = clone.clips.map(c => ({ ...c, videoUrl: null }));
-        localStorage.setItem('peakcut_app_state_v1', JSON.stringify(clone));
+        localStorage.setItem('peakcut_app_state_v2', JSON.stringify(clone));
       } catch (e) {}
+    }
+
+    function applyTheme(themeId) {
+      const t = M3_THEMES[themeId] || M3_THEMES.amber;
+      document.documentElement.style.setProperty('--accent', t.accent);
+      document.documentElement.style.setProperty('--accent-hover', t.hover);
+      document.documentElement.style.setProperty('--accent-soft', t.soft);
+      document.querySelectorAll('.theme-swatch-btn').forEach(btn => {
+        btn.style.borderColor = btn.dataset.themeId === themeId ? t.accent : '';
+      });
     }
 
     function showToast(msg) {
@@ -753,33 +784,40 @@
       state.activeView = viewName;
       document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
       const target = document.getElementById('view-' + viewName);
-      if (target) target.classList.remove('hidden');
+      if (target) {
+        target.classList.remove('hidden');
+        target.classList.remove('view-enter');
+        void target.offsetWidth;
+        target.classList.add('view-enter');
+      }
       document.querySelectorAll('#mainNav .nav-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.view === viewName);
       });
       document.querySelectorAll('.android-nav-item').forEach(b => {
-        const isAct = b.dataset.view === viewName;
-        b.classList.toggle('text-[#f97316]', isAct);
-        b.classList.toggle('font-semibold', isAct);
-        b.classList.toggle('text-[#94a3b8]', !isAct);
+        b.classList.toggle('is-active', b.dataset.view === viewName);
       });
       if (viewName === 'usage') renderUsageChart();
       saveState();
     }
 
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
     function renderAll() {
+      applyTheme(state.themeId || 'amber');
       document.body.classList.toggle('android-mode', !!state.androidMode);
       document.getElementById('toggleAndroidModeBtn').textContent = state.androidMode ? 'Desktop Web View' : 'Android App View';
       document.getElementById('adminNavBtn').classList.toggle('hidden', !state.accountsEnabled);
       document.getElementById('signInTriggerBtn').classList.toggle('hidden', !state.accountsEnabled);
       document.getElementById('authStatusPill').textContent = state.accountsEnabled
         ? `${state.signedInUser.email} (${state.signedInUser.role})`
-        : 'Local Owner (No Sign-in)';
+        : 'Local Owner';
       document.getElementById('navQueueCount').textContent = state.postQueue.length;
 
       const aiBadge = document.getElementById('aiModeBadge');
       if (state.ai.provider === 'none' || (!state.ai.key && state.ai.provider !== 'ollama')) {
-        aiBadge.textContent = state.ai.provider === 'none' ? 'Mode: Loudness-only (No AI key)' : `AI: ${state.ai.provider} (Key not set — Loudness fallback)`;
+        aiBadge.textContent = state.ai.provider === 'none' ? 'Mode: Loudness-only' : `AI: ${state.ai.provider} (Loudness fallback)`;
         aiBadge.className = 'tag tag-orange';
       } else {
         aiBadge.textContent = `AI: ${state.ai.provider} (${state.ai.models.split(',')[0].trim()})`;
@@ -802,10 +840,6 @@
       renderAdmin();
     }
 
-    function escapeHtml(str) {
-      return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-    }
-
     function renderJobs() {
       const container = document.getElementById('activeJobsList');
       const tag = document.getElementById('queueStateTag');
@@ -824,7 +858,7 @@
             <span class="tag tag-blue">${escapeHtml(j.stage)}</span>
           </div>
           <div class="w-full h-1.5 bg-[#0c0e12] rounded overflow-hidden">
-            <div class="h-full bg-[#f97316] transition-all" style="width:${j.progress}%"></div>
+            <div class="h-full transition-all" style="width:${j.progress}%; background: var(--accent)"></div>
           </div>
         </div>
       `).join('');
@@ -852,16 +886,12 @@
         } else {
           clearInterval(interval);
           state.jobs = state.jobs.filter(x => x.id !== jobId);
+          const dur = Math.min(duration, 42);
           const newClip = {
-            id: 'clip-' + Date.now(),
-            workspaceId: wsId,
-            title: `${title.slice(0, 34)} — Highlight`,
-            hook: hookEnabled ? 'Wait until you hear this part...' : '',
-            sourceTitle: title,
-            duration: Math.min(duration, 42),
-            style,
-            score: 88 + Math.floor(Math.random() * 10),
-            videoUrl,
+            id: 'clip-' + Date.now(), workspaceId: wsId, title: `${title.slice(0, 34)} — Highlight`,
+            hook: hookEnabled ? 'Wait until you hear this part...' : '', sourceTitle: title,
+            duration: dur, trimStart: 0, trimEnd: dur, aspect: '9:16', style,
+            score: 88 + Math.floor(Math.random() * 10), videoUrl,
             transcript: 'This is where everything changed in the workflow. Once we switched to local speech transcription and automated 9:16 framing, output tripled.'
           };
           state.clips.unshift(newClip);
@@ -880,7 +910,7 @@
           renderAll();
           showToast(`Clip ready: ${newClip.title}`);
         }
-      }, 650);
+      }, 600);
     }
 
     function renderClips() {
@@ -895,18 +925,19 @@
       grid.innerHTML = filtered.map(c => {
         const ws = state.workspaces.find(w => w.id === c.workspaceId);
         const active = c.id === state.selectedClipId;
+        const trimmedDur = Math.max(1, ((c.trimEnd ?? c.duration) - (c.trimStart ?? 0))).toFixed(1);
         return `
-          <div class="panel-2 p-3 flex items-center justify-between gap-3 cursor-pointer ${active ? 'border-[#f97316]' : ''}" data-select-clip="${c.id}">
+          <div class="panel-2 p-3 flex items-center justify-between gap-3 cursor-pointer" style="${active ? 'border-color: var(--accent)' : ''}" data-select-clip="${c.id}">
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2">
                 <p class="text-xs font-semibold truncate">${escapeHtml(c.title)}</p>
                 <span class="tag tag-green">Score ${c.score}</span>
               </div>
-              <p class="text-[11px] text-[#94a3b8] truncate mt-0.5">${escapeHtml(c.sourceTitle)} · ${c.duration}s · ${ws ? escapeHtml(ws.name) : ''}</p>
+              <p class="text-[11px] text-[#94a3b8] truncate mt-0.5">${escapeHtml(c.sourceTitle)} · ${trimmedDur}s · ${c.aspect || '9:16'} · ${ws ? escapeHtml(ws.name) : ''}</p>
             </div>
             <div class="flex items-center gap-1.5">
               <span class="tag">${escapeHtml(c.style)}</span>
-              <button class="btn text-[11px] py-1 px-2" data-delete-clip="${c.id}">Delete</button>
+              <button class="btn text-[11px] py-1 px-2.5" data-delete-clip="${c.id}">Delete</button>
             </div>
           </div>
         `;
@@ -916,7 +947,8 @@
         el.addEventListener('click', (e) => {
           if (e.target.closest('[data-delete-clip]')) return;
           state.selectedClipId = el.dataset.selectClip;
-          previewTime = 0;
+          const c = state.clips.find(x => x.id === state.selectedClipId);
+          previewTime = c ? (c.trimStart || 0) : 0;
           renderClips();
           renderPreview();
         });
@@ -938,6 +970,7 @@
       const clip = state.clips.find(c => c.id === state.selectedClipId);
       const vid = document.getElementById('previewVideo');
       const cvs = document.getElementById('previewCanvas');
+      const container = document.getElementById('previewContainer');
       const hookBox = document.getElementById('previewHookBox');
       const hookText = document.getElementById('previewHookText');
 
@@ -950,9 +983,16 @@
         return;
       }
 
+      const aspect = clip.aspect || '9:16';
+      container.classList.toggle('aspect-4-5', aspect === '4:5');
+      container.classList.toggle('aspect-1-1', aspect === '1:1');
+      document.getElementById('aspectRatioSelect').value = aspect;
+
       document.getElementById('editClipTitle').value = clip.title;
       document.getElementById('editClipHook').value = clip.hook;
       document.getElementById('editClipTranscript').value = clip.transcript;
+      document.getElementById('trimStartInput').value = (clip.trimStart ?? 0).toFixed(1);
+      document.getElementById('trimEndInput').value = (clip.trimEnd ?? clip.duration).toFixed(1);
 
       if (clip.hook) {
         hookBox.classList.remove('hidden');
@@ -968,14 +1008,14 @@
       } else {
         vid.classList.add('hidden');
         cvs.classList.remove('hidden');
-        drawSyntheticFrame(cvs, previewTime);
+        drawSyntheticFrame(cvs, previewTime, aspect);
       }
 
       updateCaptionOverlay(clip);
       const total = clip.duration || 30;
-      const pct = Math.min(100, Math.round((previewTime / total) * 100));
-      document.getElementById('previewScrubber').value = pct;
-      document.getElementById('previewTimecode').textContent = `${formatSec(previewTime)} / ${formatSec(total)}`;
+      const permille = Math.min(1000, Math.round((previewTime / total) * 1000));
+      document.getElementById('previewScrubber').value = permille;
+      document.getElementById('previewTimecode').textContent = `${previewTime.toFixed(2)}s (f${Math.round(previewTime * 30)})`;
     }
 
     function formatSec(s) {
@@ -984,10 +1024,10 @@
       return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
     }
 
-    function drawSyntheticFrame(canvas, t) {
+    function drawSyntheticFrame(canvas, t, aspect) {
       const ctx = canvas.getContext('2d');
       const w = canvas.width = 270;
-      const h = canvas.height = 480;
+      const h = canvas.height = aspect === '1:1' ? 270 : (aspect === '4:5' ? 338 : 480);
       const grad = ctx.createLinearGradient(0, 0, w, h);
       grad.addColorStop(0, '#141926');
       grad.addColorStop(0.5, '#1e1b2e');
@@ -997,13 +1037,13 @@
 
       ctx.fillStyle = 'rgba(249, 115, 22, 0.35)';
       for (let i = 0; i < 24; i++) {
-        const barH = 16 + Math.abs(Math.sin(t * 3 + i * 0.6)) * 54;
-        ctx.fillRect(18 + i * 10, h * 0.45 - barH / 2, 6, barH);
+        const barH = 14 + Math.abs(Math.sin(t * 3 + i * 0.6)) * 48;
+        ctx.fillRect(18 + i * 10, h * 0.48 - barH / 2, 6, barH);
       }
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
       ctx.font = '600 11px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('9:16 VERTICAL CROP PREVIEW', w / 2, h * 0.32);
+      ctx.fillText(`${aspect} CROP · FRAME #${Math.round(t * 30)}`, w / 2, h * 0.33);
     }
 
     function updateCaptionOverlay(clip) {
@@ -1019,10 +1059,10 @@
       let bg = 'bg-transparent';
       if (clip.style === 'archivo') {
         cls = 'font-archivo text-base uppercase ';
-        bg = 'bg-black/80 px-2.5 py-1 rounded';
+        bg = 'bg-black/80 px-2.5 py-1 rounded-lg';
       } else if (clip.style === 'poppins') {
         cls = 'font-poppins text-base font-bold ';
-        bg = 'bg-white text-black px-2.5 py-1 rounded';
+        bg = 'bg-white text-black px-2.5 py-1 rounded-lg';
       }
 
       box.className = `inline-block ${bg}`;
@@ -1046,11 +1086,14 @@
       clearInterval(previewTimer);
       if (previewPlaying) {
         if (clip.videoUrl) vid.play().catch(() => {});
+        const start = clip.trimStart ?? 0;
+        const end = clip.trimEnd ?? clip.duration ?? 30;
+        if (previewTime < start || previewTime >= end) previewTime = start;
         previewTimer = setInterval(() => {
-          previewTime += 0.25;
-          if (previewTime >= (clip.duration || 30)) previewTime = 0;
+          previewTime += 0.1;
+          if (previewTime >= end) previewTime = start;
           renderPreview();
-        }, 250);
+        }, 100);
       } else {
         if (clip.videoUrl) vid.pause();
       }
@@ -1078,18 +1121,9 @@
               <button class="btn btn-danger text-xs py-1 px-2.5" data-stop-live="${s.id}">Stop</button>
             </div>
             <div class="grid grid-cols-3 gap-2 text-center">
-              <div class="panel-2 p-2">
-                <p class="text-[10px] text-[#94a3b8]">Loudness</p>
-                <p class="text-sm font-bold">${s.loudnessDb} dBFS</p>
-              </div>
-              <div class="panel-2 p-2">
-                <p class="text-[10px] text-[#94a3b8]">Chat Rate</p>
-                <p class="text-sm font-bold">${s.chatPerMin}/min</p>
-              </div>
-              <div class="panel-2 p-2">
-                <p class="text-[10px] text-[#94a3b8]">Clips Captured</p>
-                <p class="text-sm font-bold text-[#86efac]">${s.clipsCaptured}</p>
-              </div>
+              <div class="panel-2 p-2"><p class="text-[10px] text-[#94a3b8]">Loudness</p><p class="text-sm font-bold">${s.loudnessDb} dBFS</p></div>
+              <div class="panel-2 p-2"><p class="text-[10px] text-[#94a3b8]">Chat Rate</p><p class="text-sm font-bold">${s.chatPerMin}/min</p></div>
+              <div class="panel-2 p-2"><p class="text-[10px] text-[#94a3b8]">Clips Captured</p><p class="text-sm font-bold text-[#86efac]">${s.clipsCaptured}</p></div>
             </div>
             <div class="panel-2 p-2.5 text-xs text-[#cbd5e1]">
               <span class="text-[10px] uppercase text-[#94a3b8] block mb-0.5">Live Transcript Tail</span>
@@ -1116,15 +1150,9 @@
           s.clipsCaptured += 1;
           const ws = state.workspaces.find(w => w.id === s.workspaceId);
           state.clips.unshift({
-            id: 'clip-' + Date.now(),
-            workspaceId: s.workspaceId,
-            title: `Live Highlight #${s.clipsCaptured}`,
-            hook: 'Caught live on stream!',
-            sourceTitle: s.url,
-            duration: 38,
-            style: ws ? ws.captionStyle : 'anton',
-            score: 92,
-            videoUrl: null,
+            id: 'clip-' + Date.now(), workspaceId: s.workspaceId, title: `Live Highlight #${s.clipsCaptured}`,
+            hook: 'Caught live on stream!', sourceTitle: s.url, duration: 38, trimStart: 0, trimEnd: 38,
+            aspect: '9:16', style: ws ? ws.captionStyle : 'anton', score: 92, videoUrl: null,
             transcript: s.transcriptTail + ' That moment was insane, clip that right now!'
           });
           saveState();
@@ -1137,7 +1165,7 @@
     function renderWorkspaces() {
       const list = document.getElementById('workspacesList');
       list.innerHTML = state.workspaces.map(w => `
-        <div class="panel p-3 cursor-pointer ${w.id === state.selectedWorkspaceId ? 'border-[#f97316]' : ''}" data-ws-id="${w.id}">
+        <div class="panel p-3 cursor-pointer" style="${w.id === state.selectedWorkspaceId ? 'border-color: var(--accent)' : ''}" data-ws-id="${w.id}">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold">${escapeHtml(w.name)}</span>
             <span class="tag">${escapeHtml(w.platform)}</span>
@@ -1159,18 +1187,12 @@
 
       detail.innerHTML = `
         <div class="flex items-center justify-between">
-          <h2 class="text-sm font-semibold">${escapeHtml(ws.name)}</h2>
+          <h2 class="m3-title-md">${escapeHtml(ws.name)}</h2>
           <span class="tag ${ws.autoPost ? 'tag-green' : ''}">${ws.autoPost ? 'Auto-post ON' : 'Manual Queue'}</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div>
-            <label class="block text-[#94a3b8] mb-1">Workspace Name</label>
-            <input id="wsEditName" class="input" value="${escapeHtml(ws.name)}" />
-          </div>
-          <div>
-            <label class="block text-[#94a3b8] mb-1">Channel URL</label>
-            <input id="wsEditChannel" class="input" value="${escapeHtml(ws.channel)}" />
-          </div>
+          <div><label class="block text-[#94a3b8] mb-1">Workspace Name</label><input id="wsEditName" class="input" value="${escapeHtml(ws.name)}" /></div>
+          <div><label class="block text-[#94a3b8] mb-1">Channel URL</label><input id="wsEditChannel" class="input" value="${escapeHtml(ws.channel)}" /></div>
           <div>
             <label class="block text-[#94a3b8] mb-1">Default Caption Style</label>
             <select id="wsEditStyle" class="input">
@@ -1196,9 +1218,7 @@
         </div>
         <div class="border-t border-[#252a36] pt-3">
           <p class="text-xs font-semibold mb-2">Activity Log</p>
-          <ul class="space-y-1 text-[11px] text-[#94a3b8]">
-            ${ws.logs.map(l => `<li>• ${escapeHtml(l)}</li>`).join('')}
-          </ul>
+          <ul class="space-y-1 text-[11px] text-[#94a3b8]">${ws.logs.map(l => `<li>• ${escapeHtml(l)}</li>`).join('')}</ul>
         </div>
       `;
 
@@ -1288,18 +1308,18 @@
       if (!ctx || typeof Chart === 'undefined') return;
       if (usageChartInstance) usageChartInstance.destroy();
       const labels = state.usageRecords.slice(0, 6).map(r => r.source.slice(0, 20));
+      const accentHex = (M3_THEMES[state.themeId] || M3_THEMES.amber).accent;
       usageChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
           labels,
           datasets: [
-            { label: 'Tokens In', data: state.usageRecords.slice(0, 6).map(r => r.tokensIn), backgroundColor: '#f97316' },
+            { label: 'Tokens In', data: state.usageRecords.slice(0, 6).map(r => r.tokensIn), backgroundColor: accentHex },
             { label: 'Tokens Out', data: state.usageRecords.slice(0, 6).map(r => r.tokensOut), backgroundColor: '#3b82f6' }
           ]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive: true, maintainAspectRatio: false,
           plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
           scales: {
             x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: '#252a36' } },
@@ -1361,15 +1381,10 @@
       const list = document.getElementById('adminUsersList');
       list.innerHTML = state.adminUsers.map(u => `
         <div class="panel-2 p-2.5 flex items-center justify-between text-xs">
-          <div>
-            <span class="font-medium">${escapeHtml(u.email)}</span>
-            <span class="text-[#94a3b8] ml-2">${u.jobsCount} jobs</span>
-          </div>
+          <div><span class="font-medium">${escapeHtml(u.email)}</span><span class="text-[#94a3b8] ml-2">${u.jobsCount} jobs</span></div>
           <div class="flex items-center gap-2">
             <span class="tag ${u.role === 'admin' ? 'tag-orange' : ''}">${u.role}</span>
-            <button class="btn text-[11px] py-1 px-2" data-toggle-role="${escapeHtml(u.email)}">
-              ${u.role === 'admin' ? 'Revoke Admin' : 'Grant Admin'}
-            </button>
+            <button class="btn text-[11px] py-1 px-2.5" data-toggle-role="${escapeHtml(u.email)}">${u.role === 'admin' ? 'Revoke Admin' : 'Grant Admin'}</button>
           </div>
         </div>
       `).join('');
@@ -1387,13 +1402,9 @@
       });
     }
 
-    document.querySelectorAll('#mainNav .nav-btn').forEach(btn => {
-      btn.addEventListener('click', () => switchView(btn.dataset.view));
-    });
-
-    document.querySelectorAll('.android-nav-item').forEach(btn => {
-      btn.addEventListener('click', () => switchView(btn.dataset.view));
-    });
+    // Bindings
+    document.querySelectorAll('#mainNav .nav-btn').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+    document.querySelectorAll('.android-nav-item').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
 
     document.getElementById('toggleAndroidModeBtn').addEventListener('click', () => {
       state.androidMode = !state.androidMode;
@@ -1406,9 +1417,18 @@
       btn.addEventListener('click', () => {
         document.querySelectorAll('.settings-tab-btn').forEach(x => x.classList.remove('active'));
         btn.classList.add('active');
-        ['ai', 'apps', 'account'].forEach(t => {
+        ['ai', 'theme', 'apps', 'account'].forEach(t => {
           document.getElementById('stab-' + t).classList.toggle('hidden', t !== btn.dataset.stab);
         });
+      });
+    });
+
+    document.querySelectorAll('.theme-swatch-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.themeId = btn.dataset.themeId;
+        applyTheme(state.themeId);
+        saveState();
+        showToast(`Theme switched to ${btn.dataset.themeId}`);
       });
     });
 
@@ -1422,11 +1442,11 @@
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileUploadInput');
     dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-[#f97316]'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[#f97316]'));
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--accent)'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropZone.classList.remove('border-[#f97316]');
+      dropZone.style.borderColor = '';
       handleFiles(e.dataTransfer.files);
     });
     fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
@@ -1434,10 +1454,7 @@
     function handleFiles(files) {
       const list = Array.from(files).slice(0, 5);
       if (list.length === 0) return;
-      list.forEach(f => {
-        const blobUrl = URL.createObjectURL(f);
-        startClipJob(f.name, blobUrl);
-      });
+      list.forEach(f => startClipJob(f.name, URL.createObjectURL(f)));
     }
 
     document.getElementById('simulateDemoJobBtn').addEventListener('click', () => {
@@ -1447,11 +1464,68 @@
     document.getElementById('clipFilterWorkspace').addEventListener('change', renderClips);
     document.getElementById('playPausePreviewBtn').addEventListener('click', togglePreviewPlayback);
 
+    document.getElementById('stepBackFrameBtn').addEventListener('click', () => {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+      if (previewPlaying) togglePreviewPlayback();
+      previewTime = Math.max(clip.trimStart ?? 0, previewTime - (1 / 30));
+      if (clip.videoUrl) document.getElementById('previewVideo').currentTime = previewTime;
+      renderPreview();
+    });
+
+    document.getElementById('stepFwdFrameBtn').addEventListener('click', () => {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+      if (previewPlaying) togglePreviewPlayback();
+      previewTime = Math.min(clip.trimEnd ?? clip.duration, previewTime + (1 / 30));
+      if (clip.videoUrl) document.getElementById('previewVideo').currentTime = previewTime;
+      renderPreview();
+    });
+
+    // rAF-coalesced rapid scrubbing for smooth 60fps dragging
     document.getElementById('previewScrubber').addEventListener('input', (e) => {
       const clip = state.clips.find(c => c.id === state.selectedClipId);
       if (!clip) return;
-      previewTime = (Number(e.target.value) / 100) * (clip.duration || 30);
-      if (clip.videoUrl) document.getElementById('previewVideo').currentTime = previewTime;
+      previewTime = (Number(e.target.value) / 1000) * (clip.duration || 30);
+      if (!scrubRafPending) {
+        scrubRafPending = true;
+        requestAnimationFrame(() => {
+          scrubRafPending = false;
+          if (clip.videoUrl) document.getElementById('previewVideo').currentTime = previewTime;
+          renderPreview();
+        });
+      }
+    });
+
+    document.getElementById('aspectRatioSelect').addEventListener('change', (e) => {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+      clip.aspect = e.target.value;
+      saveState();
+      renderClips();
+      renderPreview();
+      showToast(`Crop ratio: ${clip.aspect}`);
+    });
+
+    document.getElementById('trimStartInput').addEventListener('change', (e) => {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+      const val = Math.max(0, Math.min(Number(e.target.value) || 0, (clip.trimEnd ?? clip.duration) - 0.5));
+      clip.trimStart = val;
+      if (previewTime < val) previewTime = val;
+      saveState();
+      renderClips();
+      renderPreview();
+    });
+
+    document.getElementById('trimEndInput').addEventListener('change', (e) => {
+      const clip = state.clips.find(c => c.id === state.selectedClipId);
+      if (!clip) return;
+      const val = Math.min(clip.duration, Math.max(Number(e.target.value) || clip.duration, (clip.trimStart ?? 0) + 0.5));
+      clip.trimEnd = val;
+      if (previewTime > val) previewTime = val;
+      saveState();
+      renderClips();
       renderPreview();
     });
 
@@ -1484,13 +1558,8 @@
       const connected = Object.entries(state.connectedApps).filter(([, v]) => v.connected).map(([k]) => k.toUpperCase());
       const platform = connected[0] || 'YouTube';
       state.postQueue.unshift({
-        id: 'post-' + Date.now(),
-        clipId: clip.id,
-        title: clip.title,
-        platform,
-        workspaceId: clip.workspaceId,
-        status: 'Queued (Spacing respected)',
-        scheduledFor: 'Next available slot'
+        id: 'post-' + Date.now(), clipId: clip.id, title: clip.title, platform,
+        workspaceId: clip.workspaceId, status: 'Queued (Spacing respected)', scheduledFor: 'Next available slot'
       });
       saveState();
       renderAll();
@@ -1500,13 +1569,36 @@
     document.getElementById('downloadClipBtn').addEventListener('click', () => {
       const clip = state.clips.find(c => c.id === state.selectedClipId);
       if (!clip) return;
-      const srt = `1\n00:00:00,000 --> 00:00:${String(clip.duration).padStart(2, '0')},000\n${clip.transcript}\n`;
+      const start = (clip.trimStart ?? 0).toFixed(2);
+      const end = (clip.trimEnd ?? clip.duration).toFixed(2);
+      const srt = `1\n00:00:00,000 --> 00:00:${String(Math.round(end - start)).padStart(2, '0')},000\n${clip.transcript}\n`;
       const blob = new Blob([srt], { type: 'text/plain' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `${clip.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.srt`;
+      a.download = `${clip.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${clip.aspect || '9x16'}.srt`;
       a.click();
-      showToast('Exported clip captions (.srt)');
+      showToast(`Exported trimmed clip (${start}s–${end}s) captions`);
+    });
+
+    document.getElementById('stressTestReportBtn').addEventListener('click', () => {
+      openModal('FFmpeg Clipping & Trimming Stress-Test Results', `
+        <p class="text-[#94a3b8]">Verified on 1080p high-bitrate (18 Mbps) and multi-aspect inputs cropped to 1080×1920 (9:16):</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-[11px] text-left border-collapse">
+            <thead class="text-[#94a3b8] border-b border-[#252a36]">
+              <tr><th class="py-1.5 pr-2">Case</th><th class="py-1.5 pr-2">Frames</th><th class="py-1.5 pr-2">Delta</th><th class="py-1.5">Speed</th></tr>
+            </thead>
+            <tbody class="divide-y divide-[#252a36]">
+              <tr><td class="py-1.5 pr-2">16:9 18 Mbps</td><td class="py-1.5 pr-2">120/120</td><td class="py-1.5 pr-2 text-[#86efac]">0</td><td class="py-1.5">2.27x</td></tr>
+              <tr><td class="py-1.5 pr-2">21:9 Ultrawide</td><td class="py-1.5 pr-2">90/90</td><td class="py-1.5 pr-2 text-[#86efac]">0</td><td class="py-1.5">2.54x</td></tr>
+              <tr><td class="py-1.5 pr-2">4:3 Classic</td><td class="py-1.5 pr-2">105/105</td><td class="py-1.5 pr-2 text-[#86efac]">0</td><td class="py-1.5">2.29x</td></tr>
+              <tr><td class="py-1.5 pr-2">1:1 60fps Square</td><td class="py-1.5 pr-2">150/150</td><td class="py-1.5 pr-2 text-[#86efac]">0</td><td class="py-1.5">1.41x</td></tr>
+              <tr><td class="py-1.5 pr-2">9:16 Native</td><td class="py-1.5 pr-2">90/90</td><td class="py-1.5 pr-2 text-[#86efac]">0</td><td class="py-1.5">2.60x</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-[11px] text-[#86efac]">Rapid Scrubbing (20 random cold seeks on 18 Mbps 1080p): 219.9 ms avg seek · Web slider coalesced via requestAnimationFrame.</p>
+      `);
     });
 
     document.getElementById('startLiveBtn').addEventListener('click', () => {
@@ -1514,14 +1606,8 @@
       if (!url) { showToast('Enter a Twitch, Kick, or YouTube Live URL'); return; }
       if (state.liveSessions.length >= 2) { showToast('Max concurrent live recordings reached (2)'); return; }
       state.liveSessions.push({
-        id: 'live-' + Date.now(),
-        url,
-        workspaceId: document.getElementById('liveWorkspaceSelect').value,
-        status: 'Recording',
-        uptimeSec: 12,
-        loudnessDb: -16,
-        chatPerMin: 34,
-        clipsCaptured: 0,
+        id: 'live-' + Date.now(), url, workspaceId: document.getElementById('liveWorkspaceSelect').value,
+        status: 'Recording', uptimeSec: 12, loudnessDb: -16, chatPerMin: 34, clipsCaptured: 0,
         transcriptTail: 'Stream buffer connected. Listening for loudness & chat spikes...'
       });
       document.getElementById('liveUrlInput').value = '';
@@ -1533,17 +1619,9 @@
     document.getElementById('newWorkspaceBtn').addEventListener('click', () => {
       const id = 'ws-' + Date.now();
       state.workspaces.push({
-        id,
-        name: `Creator Workspace ${state.workspaces.length + 1}`,
-        platform: 'YouTube',
-        channel: 'https://youtube.com/@newcreator',
-        captionStyle: 'poppins',
-        hookEnabled: true,
-        targetDuration: 45,
-        autoPost: false,
-        spacingHours: 4,
-        dailyCap: 3,
-        logs: ['Workspace created']
+        id, name: `Creator Workspace ${state.workspaces.length + 1}`, platform: 'YouTube',
+        channel: 'https://youtube.com/@newcreator', captionStyle: 'poppins', hookEnabled: true,
+        targetDuration: 45, autoPost: false, spacingHours: 4, dailyCap: 3, logs: ['Workspace created']
       });
       state.selectedWorkspaceId = id;
       saveState();
@@ -1562,11 +1640,9 @@
       const p = document.getElementById('aiProviderSelect').value;
       const list = PROVIDER_MODELS[p] || [];
       const wrap = document.getElementById('foundModelsChips');
-      wrap.innerHTML = list.map(m => `<button type="button" class="tag cursor-pointer hover:border-[#f97316]" data-pick-model="${m}">${m}</button>`).join('');
+      wrap.innerHTML = list.map(m => `<button type="button" class="tag cursor-pointer" data-pick-model="${m}">${m}</button>`).join('');
       wrap.querySelectorAll('[data-pick-model]').forEach(b => {
-        b.addEventListener('click', () => {
-          document.getElementById('aiModelsInput').value = b.dataset.pickModel;
-        });
+        b.addEventListener('click', () => { document.getElementById('aiModelsInput').value = b.dataset.pickModel; });
       });
       showToast(list.length ? `Found ${list.length} models for ${p}` : 'No model needed for loudness-only mode');
     });
@@ -1608,24 +1684,21 @@
     });
 
     document.getElementById('updateBadgeBtn').addEventListener('click', () => {
-      openModal('PeakCut Update Available', `
-        <p>A newer commit is available on <code class="text-[#f97316]">haziqahmedqasmi/PeakCut</code>.</p>
-        <div class="panel-2 p-2.5 font-mono text-[11px]">git pull &amp;&amp; pip install -r requirements.txt</div>
-        <p class="text-[#94a3b8]">Your .env, AI keys, and clips in ./data are never touched.</p>
+      openModal('PeakCut v1.1 — Material 3 & Verified CI', `
+        <p>Includes Android 12+ Material You dynamic colors, frame-accurate trim controls, and GitHub Actions debug + release APK workflows.</p>
+        <div class="panel-2 p-2.5 font-mono text-[11px]">git push -f origin main</div>
       `);
     });
 
     document.getElementById('openDataFolderBtn').addEventListener('click', () => {
       openModal('Local Storage (PEAKCUT_DATA)', `
-        <p>Videos, rendered 9:16 clips, and SQLite/PostgreSQL metadata live in <code class="text-[#f97316]">./data</code>.</p>
+        <p>Videos, rendered 9:16 clips, and SQLite/PostgreSQL metadata live in <code style="color: var(--accent)">./data</code>.</p>
         <p class="text-[#94a3b8]">124 GB free · No upload size or video length caps configured.</p>
       `);
     });
 
     document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
-    document.getElementById('modalBackdrop').addEventListener('click', (e) => {
-      if (e.target.id === 'modalBackdrop') closeModal();
-    });
+    document.getElementById('modalBackdrop').addEventListener('click', (e) => { if (e.target.id === 'modalBackdrop') closeModal(); });
 
     setInterval(() => {
       const cpu = 18 + Math.floor(Math.random() * 14) + state.jobs.length * 12;

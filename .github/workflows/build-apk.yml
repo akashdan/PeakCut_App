@@ -18,16 +18,32 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Ensure Android SDK 34 & Licenses
+        run: |
+          yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0"
+
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
 
-      - name: Build Debug APK
-        run: gradle assembleDebug
+      - name: Build Debug and Release APKs
+        run: gradle assembleDebug assembleRelease --stacktrace
 
-      - name: Upload APK Artifact
+      - name: Verify APK Outputs
+        run: |
+          ls -lh app/build/outputs/apk/debug/app-debug.apk
+          ls -lh app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: PeakCut-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Release APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PeakCut-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
